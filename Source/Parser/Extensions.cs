@@ -58,7 +58,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                     {
                         var possibility = arg.Arguments[j];
                         sb.Append(possibility.Name);
-                        if (arg.Arguments[j].Arguments.Count > 1) //Child arguments (Print each possible value)
+                        if (arg.Arguments[j].Arguments.Count >= 1) //Child arguments (Print each possible value)
                         {
                             sb.Append(' ');
                             WriteArguments(arg.Arguments[j].Arguments, sb);
@@ -70,6 +70,11 @@ namespace Pyratron.Frameworks.Commands.Parser
                 else
                 {
                     sb.Append(arg.Name.ToLower());
+                    if (arg.Arguments.Count >= 1) //Child arguments
+                    {
+                        sb.Append(' ');
+                        WriteArguments(arg.Arguments, sb);
+                    }
                 }
 
                 sb.Append(arg.Optional ? "]" : ">");

@@ -56,6 +56,8 @@ namespace Demo
                 .AddAlias("mail") //Aliases (Note multiple at a time!)
                 .SetDescription("Allows users to send messages.")
                 .SetAction(OnMailExecuted)
+                //.AddArguments(Argument
+                //    .InferArguments("[read|clear|send <user> <message>]")));
                 .AddArgument(Argument //Add an argument
                     .Create("type")
                     .MakeOptional()
@@ -64,6 +66,55 @@ namespace Demo
                     .AddOption(Argument.Create("send")
                         .AddArgument((Argument.Create("user")))
                         .AddArgument((Argument.Create("message"))))));
+
+            Parser.AddCommand(Command
+                .Create("Godmode")
+                .AddAlias("god", "godmode")
+                .SetDescription("Disables or enables godmode.")
+                .SetAction(
+                    delegate(Argument[] arguments)
+                    {
+                        Console.WriteLine("Godmode turned {0} for {1}", arguments.ArgumentFromName("status").Value, arguments.ArgumentFromName("player").Value);
+                    })
+                 .AddArgument(Argument
+                    .Create("player")
+                    .SetDefault("User")
+                 .AddArgument(Argument
+                    .Create("status")
+                    .MakeOptional()
+                    .SetDefault("on")
+                    .AddOption(Argument.Create("on"))
+                    .AddOption(Argument.Create("off")))));
+
+            Parser.AddCommand(Command
+                .Create("Rain")
+                .AddAlias("rain", "storm")
+                .SetDescription("Disables or enables rain.")
+                .SetAction(
+                    delegate(Argument[] arguments)
+                    {
+                        Console.WriteLine("Rain turned {0}", arguments.ArgumentFromName("type").Value);
+                    })
+                .AddArgument(Argument
+                    .Create("type")
+                    .MakeOptional()
+                    .SetDefault("on")
+                    .AddOption(Argument.Create("on").AddArgument(Argument.Create("duration")))
+                    .AddOption(Argument.Create("off"))));
+
+            Parser.AddCommand(Command
+                .Create("Ban IP")
+                .AddAlias("banip")
+                .SetDescription("Bans a player by IP")
+                .SetAction(
+                    delegate(Argument[] arguments) { Console.WriteLine("Player banned: {0}", arguments[0].Value); })
+                .AddArgument(Argument
+                    .Create("player name|IP address")));
+
+            //Tip 2: Generate helpful command usage
+            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[3]));
+            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[4]));
+            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[5]));
 
             //Tip 2: Convert from premade arguments to argument string
             Console.WriteLine(Parser.Commands[2].Arguments.GenerateArgumentString());
