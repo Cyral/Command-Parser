@@ -55,9 +55,9 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Executes the specified command.
         /// An access level can be passed optionally to only execute the command if permission is given.
         /// </summary>
-        public CommandParser Execute(Command command, CommandArgument[] arguments, int accessLevel = 0)
+        public CommandParser Execute(Command command, CommandArgument[] arguments)
         {
-            command.Execute(arguments, accessLevel);
+            command.Execute(arguments);
             return this;
         }
 
@@ -111,7 +111,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// Parses text in search of a command (with prefix), and runs it accordingly.
         /// </summary>
-        public void Parse(string input)
+        /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission</param>
+        public void Parse(string input, int accessLevel = 0)
         {
             //Remove the prefix from the input and trim it just in case
             input = input.Trim();
@@ -136,6 +137,13 @@ namespace Pyratron.Frameworks.Commands.Parser
             else
             {
                 var command = commands.First();
+                if (command.AccessLevel > accessLevel)
+                {
+                    OnParseError(this,
+                        string.Format("Command '{0}' requires permission level {1}. (Currently only {2})", command.Name,
+                            command.AccessLevel, accessLevel));
+                    return;
+                }
                 var returnArgs = new CommandArgument[command.Arguments.Count];
 
                 //Validate each command argument
@@ -159,7 +167,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                     returnArgs[i].SetValue(inputArgs[i + 1]);
                 }
 
-                command.Execute(returnArgs, 0);
+                command.Execute(returnArgs);
             }
         }
     }

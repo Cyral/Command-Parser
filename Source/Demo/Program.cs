@@ -43,8 +43,9 @@ namespace Demo
                 .Create("Give Item")
                 .AddAlias("item", "giveitem", "give") //Aliases (Note multiple at a time!)
                 .SetDescription("Gives a user an item.")
-                .SetAction(OnGiveExecuted) 
-                .InferArguments("<user> <item> [amount](10)")); //Watch how it will automatically create these parameters!
+                .SetAction(OnGiveExecuted)
+                .InferArguments("<user> <item> [amount](10)") //Watch how it will automatically create these parameters!
+                .RestrictAccess(10)); //User must have 10 permission power to run command
 
             //Tip 2: Convert from premade arguments to argument string
             Console.WriteLine(Parser.Commands[2].Arguments.GenerateArgumentString());
@@ -61,7 +62,7 @@ namespace Demo
 
                 //Read input and parse command
                 var input = Console.ReadLine();
-                Parser.Parse(input);
+                Parser.Parse(input, 10);
             }
         }
 

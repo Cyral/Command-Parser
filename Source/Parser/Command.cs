@@ -167,11 +167,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Executes a command with the specified input and an optional access level.
         /// </summary>
         /// <param name="arguments">The parsed input</param>
-        /// <param name="accessLevel">
-        /// Access level to prevent the command from running unless it is greater than the commands
-        /// permission level.
-        /// </param>
-        public Command Execute(CommandArgument[] arguments, int accessLevel = 0)
+        public Command Execute(CommandArgument[] arguments)
         {
             Action.Invoke(arguments);
             return this;
