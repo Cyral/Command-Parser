@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Win32;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
-    public class Command
+    public class Command : IArguable
     {
         /// <summary>
         /// The permission level needed to invoke the command.
@@ -14,7 +15,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// An action to be executed when the command is ran with successful input.
         /// </summary>
-        public Action<CommandArgument[]> Action { get; set; }
+        public Action<Argument[]> Action { get; set; }
 
         /// <summary>
         /// The strings that will call the command.
@@ -24,7 +25,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// The input (Including alias and help) that are passed with the command.
         /// </summary>
-        public List<CommandArgument> Arguments { get; set; }
+        public List<Argument> Arguments { get; set; }
 
         /// <summary>
         /// Describes the command and provides basic information about it.
@@ -65,7 +66,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="name">Human friendly name</param>
         public Command(string name)
         {
-            Arguments = new List<CommandArgument>();
+            Arguments = new List<Argument>();
             Aliases = new List<string>();
             SetName(name);
         }
@@ -154,10 +155,10 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Sets an action to be ran when the command is executed.
         /// </summary>
         /// <param name="action">
-        /// Action to be ran, which takes a <c>CommandArgument</c> array parameter representing the passes
+        /// Action to be ran, which takes a <c>Argument</c> array parameter representing the passes
         /// input.
         /// </param>
-        public Command SetAction(Action<CommandArgument[]> action)
+        public Command SetAction(Action<Argument[]> action)
         {
             Action = action;
             return this;
@@ -167,79 +168,36 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Executes a command with the specified input and an optional access level.
         /// </summary>
         /// <param name="arguments">The parsed input</param>
-        public Command Execute(CommandArgument[] arguments)
+        public Command Execute(Argument[] arguments)
         {
             Action.Invoke(arguments);
             return this;
         }
 
         /// <summary>
-        /// Creates the input from a string automatically.
+        /// Add an argument to the command. All input are required by default, and are parsed in the order they are defined.
         /// </summary>
-        /// <example>
-        /// A command such as "Give a player an item X times" could be defined as:
-        /// "%lt;player&gt; &lt;item&gt; [amount]"
-        /// Where &gt; &lt; represent required items, and [ ] represent optional items.
-        /// These tags can also be nested to represent more complex values.
-        /// (value) represents a default value for an argument. (Must follow immediately)
-        /// </example>
-        /// <param name="input">The string with the argument info, see example for more information.</param>
-        public Command InferArguments(string input)
+        public Command AddArgument(Argument argument)
         {
-            //Trim input and make sure it isn't null
-            if (string.IsNullOrEmpty(input)) throw new ArgumentNullException("input");
-            input = input.Trim();
-
-            var inputArgs = input.Split(' '); //Split into arguments
-
-            for (var i = 0; i < inputArgs.Length; i++)
-            {
-                var arg = inputArgs[i];
-
-                //Find type
-                bool? required = null;
-                if (arg.StartsWith("<") && arg.EndsWith(">"))
-                    required = true;
-                else if (arg.StartsWith("[") && (arg.EndsWith("]") || (arg.EndsWith(")") && arg.Contains("]("))))
-                    required = false;
-                if (required == null)
-                    throw new InvalidOperationException(
-                        string.Format(
-                            "Argument '{0}' is not defined properly. Arguments must be surrounded with <> if they are required, or [] if they are optional.",
-                            arg));
-
-                var end = arg.Length - 2;
-
-                //Find default value if it has one
-                int indexDefault = required.Value ? arg.IndexOf(">(", StringComparison.Ordinal) : arg.IndexOf("](", StringComparison.Ordinal);
-                var defaultValue = string.Empty;
-                if (arg.EndsWith(")") && indexDefault > 1)
-                {
-                    defaultValue = arg.Substring(indexDefault + 2, end - (indexDefault + 1));
-                    end = indexDefault-1;
-                }
-
-                var argName = arg.Substring(1, end); //Take all but first and last character to find name
-                if (string.IsNullOrEmpty(argName))
-                    throw new InvalidOperationException(
-                        string.Format("Argument {0} must contain a name within their brackets.", i + 1));
-                argName = char.ToUpper(argName[0]) + argName.Substring(1); //Uppercase first to look nicer
-
-                //Create argument
-                var cmdArg = new CommandArgument(argName, !required.Value);
-                cmdArg.SetDefault(defaultValue);
-                AddArgument(cmdArg);
-            }
-
+            Arguments.Add(argument);
             return this;
         }
 
         /// <summary>
-        /// Add an argument to the command. All input are required by default, and are parsed in the order they are defined.
+        /// Adds an array of arguments to the command. Optional arguments must come last.
         /// </summary>
-        public Command AddArgument(CommandArgument argument)
+        public  Command AddArguments(Argument[] arguments)
         {
-            Arguments.Add(argument);
+            bool optional = false;
+            foreach (var arg in arguments)
+            {
+                if (arg.Optional)
+                    optional = true;
+                else if (optional)
+                    throw  new InvalidOperationException("Optional arguments must come last.");
+            }
+
+            Arguments.AddRange(arguments);
             return this;
         }
     }

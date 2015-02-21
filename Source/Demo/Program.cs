@@ -25,16 +25,18 @@ namespace Demo
                 .SetDescription("Bans a user from the server.") //Description
                 .SetAction(OnBanExecuted)
                 //Action to be executed when command is ran with correct parameters (Of course, can be method, lamba, delegate, etc)
-                .AddArgument(CommandArgument //Add an argument
+                .AddArgument(Argument //Add an argument
                     .Create("User")));
 
             //Method B: Add a command via the standard interface:
-            Parser.AddCommand(new Command("Unban User") {
+            Parser.Commands.Add(new Command("Unban User")
+            {
                 Aliases = new List<string> {"unban", "unbanuser"},
                 Description = "Unbans a user from the server.",
                 Action = OnUnbanExecuted,
-                Arguments = new List<CommandArgument> {
-                    new CommandArgument("User")
+                Arguments = new List<Argument>
+                {
+                    new Argument("User")
                 }
             });
 
@@ -44,8 +46,24 @@ namespace Demo
                 .AddAlias("item", "giveitem", "give") //Aliases (Note multiple at a time!)
                 .SetDescription("Gives a user an item.")
                 .SetAction(OnGiveExecuted)
-                .InferArguments("<user> <item> [amount](10)") //Watch how it will automatically create these parameters!
+                .AddArguments(Argument
+                    .InferArguments("<user> <item> [amount](10)"))
+                //Watch how it will automatically create these parameters!
                 .RestrictAccess(10)); //User must have 10 permission power to run command
+
+            Parser.AddCommand(Command
+                .Create("Mail")
+                .AddAlias("mail") //Aliases (Note multiple at a time!)
+                .SetDescription("Allows users to send messages.")
+                .SetAction(OnMailExecuted)
+                .AddArgument(Argument //Add an argument
+                    .Create("type")
+                    .MakeOptional()
+                    .AddOption(Argument.Create("read"))
+                    .AddOption(Argument.Create("clear"))
+                    .AddOption(Argument.Create("send")
+                        .AddArgument((Argument.Create("user")))
+                        .AddArgument((Argument.Create("message"))))));
 
             //Tip 2: Convert from premade arguments to argument string
             Console.WriteLine(Parser.Commands[2].Arguments.GenerateArgumentString());
@@ -66,7 +84,25 @@ namespace Demo
             }
         }
 
-        private static void OnGiveExecuted(CommandArgument[] args)
+        private static void OnMailExecuted(Argument[] args)
+        {
+            var type = args.ArgumentFromName("type").Value;
+            if (type == "read")
+                Console.WriteLine("No new mail!");
+            else if (type == "clear")
+                Console.WriteLine("Mail cleared!");
+            else if (type == "send")
+            {
+                var user = args.ArgumentFromName("user").Value;
+                var message = args.ArgumentFromName("message").Value;
+
+                Console.WriteLine("{0} has been sent the message: {1}", user, message);
+            }
+            else
+                Console.WriteLine("Welcome to the mail system!");
+        }
+
+        private static void OnGiveExecuted(Argument[] args)
         {
             var user = args.ArgumentFromName("user").Value;
             var item = args.ArgumentFromName("item").Value;
@@ -74,13 +110,13 @@ namespace Demo
             Console.WriteLine("User {0} was given {1} of {2}", user, amount, item);
         }
 
-        private static void OnUnbanExecuted(CommandArgument[] args)
+        private static void OnUnbanExecuted(Argument[] args)
         {
             var user = args.ArgumentFromName("user").Value;
             Console.WriteLine("User {0} was unbanned!", user);
         }
 
-        private static void OnBanExecuted(CommandArgument[] args)
+        private static void OnBanExecuted(Argument[] args)
         {
             var user = args.ArgumentFromName("user").Value;
             Console.WriteLine("User {0} was banned!", user);

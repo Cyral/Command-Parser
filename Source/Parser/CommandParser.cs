@@ -6,7 +6,7 @@ using System.Text;
 namespace Pyratron.Frameworks.Commands.Parser
 {
     /// <summary>
-    /// Handles commands and lists the command instances.
+    /// Handles commands and lists the comArgs instances.
     /// </summary>
     public class CommandParser
     {
@@ -44,7 +44,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Creates a new command parser for handling commands.
+        /// Creates a new comArgs parser for handling commands.
         /// </summary>
         public static CommandParser CreateNew(string prefix = "/")
         {
@@ -52,19 +52,19 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Executes the specified command.
-        /// An access level can be passed optionally to only execute the command if permission is given.
+        /// Executes the specified comArgs.
+        /// An access level can be passed optionally to only execute the comArgs if permission is given.
         /// </summary>
-        public CommandParser Execute(Command command, CommandArgument[] arguments)
+        public CommandParser Execute(Command command, Argument[] arguments)
         {
             command.Execute(arguments);
             return this;
         }
 
         /// <summary>
-        /// Adds a predefined command to the parser.
+        /// Adds a predefined comArgs to the parser.
         /// </summary>
-        /// <param name="command">Use Command.CreateNew() to create a command.</param>
+        /// <param name="command">Use Command.CreateNew() to create a comArgs.</param>
         public CommandParser AddCommand(Command command)
         {
             Commands.Add(command);
@@ -90,11 +90,11 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates help text defining the usage of a command
+        /// Generates help text defining the usage of a comArgs
         /// </summary>
         /// <param name="alias">
         /// Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real
-        /// command is "ban", make sure we use the alias)
+        /// comArgs is "ban", make sure we use the alias)
         /// </param>
         public string GenerateUsage(Command command, string alias = "")
         {
@@ -109,11 +109,13 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Parses text in search of a command (with prefix), and runs it accordingly.
+        /// Parses text in search of a comArgs (with prefix), and runs it accordingly.
         /// </summary>
         /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission</param>
         public void Parse(string input, int accessLevel = 0)
         {
+            if (string.IsNullOrEmpty(input)) throw new ArgumentNullException("input");
+
             //Remove the prefix from the input and trim it just in case
             input = input.Trim();
             if (!string.IsNullOrEmpty(Prefix))
@@ -127,12 +129,12 @@ namespace Pyratron.Frameworks.Commands.Parser
                 return;
 
             //Now we are ready to go
-            //Split the string into arguments
-            var inputArgs = input.Split(' ');
+            //Split the string into command
+            var inputArgs = input.Split(' ').ToList();
 
-            //Search the commands for a matching command
+            //Search the commands for a matching comArgs
             var commands = Commands.Where(cmd => cmd.Aliases.Any(alias => alias.Equals(inputArgs[0])));
-            if (commands.Count() == 0) //If no command found
+            if (commands.Count() == 0) //If no comArgs found
                 OnParseError(this, string.Format("Command '{0}' not found.", inputArgs[0]));
             else
             {
@@ -144,31 +146,130 @@ namespace Pyratron.Frameworks.Commands.Parser
                             command.AccessLevel, accessLevel));
                     return;
                 }
-                var returnArgs = new CommandArgument[command.Arguments.Count];
 
-                //Validate each command argument
-                for (var i = 0; i < command.Arguments.Count; i++)
+                var returnArgs = new List<Argument>();
+
+                //Validate each comArgs argument
+                var commandText = inputArgs.ElementAt(0).ToLower(); //Preserve the alias typed in
+                inputArgs.RemoveAt(0); //Remove the command name
+                if (!ParseArguments(commandText, command, command, inputArgs, returnArgs))
                 {
-                    if (inputArgs.Count() - 1 <= i) //If there are not enough arguments supplied
-                    {
-                        if (command.Arguments[i].Optional) //If optional, we can quit and set a default value
-                        {
-                            returnArgs[i] = command.Arguments[i];
-                            returnArgs[i].SetValue(string.Empty);
-                            break;
-                        }
-                        OnParseError(this,
-                            string.Format("Invalid arguments, '{0}' required. Usage: {1}", command.Arguments[i].Name,
-                                GenerateUsage(command, inputArgs[0])));
-                        return;
-                    }
-                    //Set the value from the input
-                    returnArgs[i] = command.Arguments[i];
-                    returnArgs[i].SetValue(inputArgs[i + 1]);
+                    //Execute the command
+                    command.Execute(returnArgs.ToArray());
                 }
 
-                command.Execute(returnArgs);
+                //Return argument values back to default
+                ResetArgs(command);
             }
+        }
+
+        /// <summary>
+        /// Resets the command back to their default values
+        /// </summary>
+        private void ResetArgs(IArguable command)
+        {
+            foreach (var arg in command.Arguments)
+            {
+                arg.SetValue(string.Empty);
+                if (arg.Arguments.Count > 0)
+                    ResetArgs(arg);
+            }
+        }
+
+        /// <summary>
+        /// Parses the command of a comArgs or nested argument and recursively parses their children.
+        /// </summary>
+        /// <returns>True if an error has occured during parsing and the calling loop should break.</returns>
+        private bool ParseArguments(string commandText, Command command, IArguable comArgs, List<string> inputArgs,
+            List<Argument> returnArgs)
+        {
+            if (comArgs == null) throw new ArgumentNullException("comArgs");
+            if (inputArgs == null) throw new ArgumentNullException("inputArgs");
+            if (returnArgs == null) throw new ArgumentNullException("returnArgs");
+
+            for (var i = 0; i < comArgs.Arguments.Count; i++)
+            {
+                if (i >= inputArgs.Count) //If there are not enough command supplied
+                {
+                    if (comArgs.Arguments[i].Optional) //If optional, we can quit and set a default value
+                    {
+                        returnArgs.Add(comArgs.Arguments[i].SetValue(string.Empty));
+                        break;
+                    }
+                    if (comArgs.Arguments[i].Enum) //Show list of types if enum (instead of argument name)
+                        OnParseError(this,
+                            string.Format("Invalid arguments, {0} required. Usage: {1}", GenerateEnumArguments(comArgs.Arguments[i]),
+                                GenerateUsage(command, commandText)));
+                    else
+                        OnParseError(this,
+                            string.Format("Invalid arguments, '{0}' required. Usage: {1}", comArgs.Arguments[i].Name,
+                                GenerateUsage(command, commandText)));
+                    return true;
+                }
+
+                if (comArgs.Arguments[i].Enum) //If argument is an "enum" (Restricted to certin values), validate it
+                {
+                    var passed =
+                        comArgs.Arguments[i].Arguments.Any(
+                            arg => string.Equals(arg.Name, inputArgs[i], StringComparison.OrdinalIgnoreCase));
+                    if (!passed)
+                    {
+                        OnParseError(this,
+                            string.Format("Argument '{0}' not recognized. Must be {1}", inputArgs[i].ToLower(),
+                                GenerateEnumArguments(comArgs.Arguments[i])));
+                        return true;
+                    }
+
+                    returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i])); //Set the type to the selected "enum"
+                    if (comArgs.Arguments[i].Arguments.Count > 0) //Parse its children
+                    {
+                        var argument =
+                            comArgs.Arguments[i].Arguments.FirstOrDefault(
+                                arg => string.Equals(arg.Name, inputArgs[i], StringComparison.OrdinalIgnoreCase));
+                        if (argument != null)
+                        {
+                            inputArgs.RemoveAt(0); //Remove the type
+                            return ParseArguments(commandText, command, argument, inputArgs, returnArgs);
+                        }
+                    }
+                    break;
+                }
+
+                //Set the value from the input
+                returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
+
+                if (comArgs.Arguments[i].Arguments.Count > 0)
+                    return ParseArguments(commandText, command, comArgs.Arguments[i], inputArgs, returnArgs);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns a list of possible values for an enum (type) argument.
+        /// </summary>
+        private string GenerateEnumArguments(Argument argument)
+        {
+            if (argument == null) throw new ArgumentNullException("argument");
+            if (!argument.Enum) throw new ArgumentException("Argument must be an enum style argument.");
+
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < argument.Arguments.Count; i++)
+            {
+                var arg = argument.Arguments[i];
+                sb.Append("'");
+                sb.Append(arg.Name);
+                sb.Append("'");
+                if (argument.Arguments.Count > 1)
+                {
+                    if (i == argument.Arguments.Count - 2)
+                        sb.Append(", or ");
+                    else if (i < argument.Arguments.Count - 1)
+                        sb.Append(", ");
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }
