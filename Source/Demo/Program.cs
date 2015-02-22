@@ -55,13 +55,22 @@ namespace Pyratron.Frameworks.Commands.Demo
                     .MakeOptional()
                     .SetDefault(10)));
 
+            Parser.AddCommand(Command.Create("Register").AddAlias("register").SetDescription("Create an account")
+                .SetAction(arguments =>
+                {
+                    var user = arguments.ArgumentFromName("username").Value;
+                    var email = arguments.ArgumentFromName("email").Value;
+                    Console.WriteLine("{0} ({1}) has registered.", user, email);
+                })
+                .AddArgument(Argument.Create("username").SetValidator(Argument.ValidationRule.Alphanumerical))
+                .AddArgument(Argument.Create("password"))
+                .AddArgument(Argument.Create("email").SetValidator(Argument.ValidationRule.Email)));
+
             Parser.AddCommand(Command
                 .Create("Mail")
                 .AddAlias("mail") //Aliases (Note multiple at a time!)
                 .SetDescription("Allows users to send messages.")
                 .SetAction(OnMailExecuted)
-                //.AddArguments(Argument
-                //    .InferArguments("[read|clear|send <user> <message>]")));
                 .AddArgument(Argument //Add an argument
                     .Create("type")
                     .MakeOptional()

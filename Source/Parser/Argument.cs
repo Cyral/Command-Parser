@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace Pyratron.Frameworks.Commands.Parser
@@ -19,6 +20,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             get { return defaultValue; }
             private set
             {
+                if (!IsValid(value))
+                    throw new ArgumentException("Value does not fulfill the validation rule.");
+
                 defaultValue = value;
                 if (string.IsNullOrEmpty(this.value)) //If value is empty, set to default value
                     this.value = defaultValue;
@@ -41,13 +45,21 @@ namespace Pyratron.Frameworks.Commands.Parser
         public bool Optional { get; set; }
 
         /// <summary>
+        /// A validation rule that checks if the argument is valid.
+        /// </summary>
+        public ValidationRule Rule { get; set; }
+
+        /// <summary>
         /// The value of this argument parsed from the command.
         /// </summary>
         public string Value
         {
             get { return value; }
-            private set
+            set
             {
+                if (!IsValid(value))
+                    throw new ArgumentException("Value does not fulfill the validation rule.");
+
                 this.value = value;
                 if (string.IsNullOrEmpty(this.value)) //If value is empty, set to default value
                     this.value = Default;
@@ -64,6 +76,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         public Argument(string name, bool optional = false)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            Rule = ValidationRule.AlwaysTrue;
             Arguments = new List<Argument>();
             Name = name.ToLower();
             Optional = optional;
@@ -116,6 +129,9 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public Argument SetValue(string value)
         {
+            if (!IsValid(value))
+                throw new ArgumentException("Value does not fulfill the validation rule.");
+
             Value = value;
             return this;
         }
@@ -126,7 +142,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public Argument SetValue(object value)
         {
-            Value = value.ToString();
+            SetValue(value.ToString());
             return this;
         }
 
@@ -136,6 +152,9 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public Argument SetDefault(string value)
         {
+            if (!IsValid(value))
+                throw new ArgumentException("Value does not fulfill the validation rule.");
+
             Default = value;
             return this;
         }
@@ -146,10 +165,10 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public Argument SetDefault(object value)
         {
-            Default = value.ToString();
+            SetDefault(value.ToString());
             return this;
         }
- 
+
         /// <summary>
         /// Adds an option to the argument. Options make the argument behave like an enum, where only certain string values are
         /// allowed.
@@ -161,6 +180,17 @@ namespace Pyratron.Frameworks.Commands.Parser
 
             Enum = true;
             AddArgument(value);
+            return this;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="rule">Represents a rule to validate an argument value on.</param>
+        public Argument SetValidator(ValidationRule rule)
+        {
+            if (rule == null) throw new ArgumentNullException("rule");
+
+            Rule = rule;
             return this;
         }
 
@@ -203,5 +233,107 @@ namespace Pyratron.Frameworks.Commands.Parser
                 AddArgument(arg);
             return this;
         }
+
+        /// <summary>
+        /// Checks if the specified string is valid for the validation rule.
+        /// </summary>
+        public bool IsValid(string value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("value");
+            return Rule.Validate(value);
+        }
+
+        /// <summary>
+        /// Resets a value to empty, bypassing any validation.
+        /// </summary>
+        internal void ResetValue()
+        {
+            value = string.Empty;
+        }
+
+        #region Nested type: Class
+
+        /// <summary>
+        /// Represents a rule to validate an argument value on.
+        /// </summary>
+        public class ValidationRule
+        {
+            public static ValidationRule Integer, Double, Alphanumerical, Email, IP;
+            internal static ValidationRule AlwaysTrue;
+
+            private static readonly Regex
+                alphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$");
+
+            /// <summary>
+            /// A user friendly name that will be displayed in an error.
+            /// Example: "Must be a valid ____"
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// A function that returns true if the string passed passes the rule.
+            /// </summary>
+            public Func<string, bool> Validate { get; set; }
+
+            static ValidationRule()
+            {
+                //Interal rule that will always return true, for default rule
+                AlwaysTrue = new ValidationRule(string.Empty, s => true);
+
+                Integer = new ValidationRule("Number", delegate(string s)
+                {
+                    int result;
+                    return int.TryParse(s, out result);
+                });
+
+                Double = new ValidationRule("Number", delegate(string s)
+                {
+                    double result;
+                    return double.TryParse(s, out result);
+                });
+
+                Email = new ValidationRule("Email", s => s.Contains('@') && s.Contains('.'));
+
+                Alphanumerical = new ValidationRule("Alphanumeric string", s => alphaNumericReg.IsMatch(s));
+
+                IP = new ValidationRule("IP Address", delegate(string s)
+                {
+                    IPAddress ip;
+                    var valid = !string.IsNullOrEmpty(s) && IPAddress.TryParse(s, out ip);
+                    return valid;
+                });
+            }
+
+            /// <summary>
+            /// Creates a new validation rule
+            /// </summary>
+            /// <param name="friendlyName"> A user friendly name that will be displayed in an error. "Must be a valid ____"</param>
+            /// <param name="validate">A function that returns true if the string passed passes the rule.</param>
+            public ValidationRule(string friendlyName, Func<string, bool> validate)
+            {
+                Name = friendlyName;
+                Validate = validate;
+            }
+
+            /// <summary>
+            /// Creates a new validation rule
+            /// </summary>
+            /// <param name="friendlyName"> A user friendly name that will be displayed in an error. "Must be a valid ____"</param>
+            /// <param name="validate">A function that returns true if the string passed passes the rule.</param>
+            public ValidationRule Create(string friendlyName, Func<string, bool> validate)
+            {
+                return new ValidationRule(friendlyName, validate);
+            }
+
+            /// <summary>
+            /// Returns the name of the rule that should be displayed in an error message.
+            /// </summary>
+            public string GetError()
+            {
+                return Name.ToLower();
+            }
+        }
+
+        #endregion
     }
 }

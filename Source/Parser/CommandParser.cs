@@ -173,7 +173,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             foreach (var arg in command.Arguments)
             {
-                arg.SetValue(string.Empty);
+                arg.ResetValue();
                 if (arg.Arguments.Count > 0)
                     ResetArgs(arg);
             }
@@ -248,6 +248,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                                 GenerateEnumArguments(comArgs.Arguments[i])));
                         return true;
                     }
+
                     //Set the argument to the selected "enum" value
                     returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
 
@@ -266,6 +267,14 @@ namespace Pyratron.Frameworks.Commands.Parser
                     break;
                 }
 
+                //Check for validation rule
+                if (!string.IsNullOrEmpty(inputArgs[i]) && !comArgs.Arguments[i].IsValid(inputArgs[i]))
+                {
+                    OnParseError(this,
+                        string.Format("Argument '{0}' is invalid. Must be a valid {1}.", comArgs.Arguments[i].Name,
+                            comArgs.Arguments[i].Rule.GetError()));
+                    return true;
+                }
                 //Set the value from the input argument if no errors were detected
                 returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
 
