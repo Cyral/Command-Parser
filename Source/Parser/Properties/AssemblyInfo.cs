@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Command Parser")]
 [assembly:
     AssemblyDescription(
-        "Simple and lightweight command parsing library. Can be used for parsing command line arguments, or user given commands in chat like applications."
+        "Simple, lightweight, but powerful command parsing library. Useful for command handling in chat or game applications."
         )]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Pyratron Studios")]

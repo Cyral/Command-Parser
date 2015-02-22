@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Pyratron.Frameworks.Commands.Parser;
 
-namespace Demo
+namespace Pyratron.Frameworks.Commands.Demo
 {
     /// <summary>
     /// Runs a demo application to showcase the Pyratron Command Parser Framework.
@@ -11,7 +11,7 @@ namespace Demo
     {
         public static CommandParser Parser { get; private set; }
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             //Create a command parser instance
             //Each instance can be built upon right away by using .AddCommand(..)
