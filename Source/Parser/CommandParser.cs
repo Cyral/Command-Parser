@@ -192,14 +192,18 @@ namespace Pyratron.Frameworks.Commands.Parser
             {
                 //If the arguments are longer than they should be, merge them into the last one.
                 //This way a user does not need quotes for a chat message for example.
-                if ((!recursive && i == comArgs.Arguments.Count - 1 && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || (recursive && comArgs.Arguments.Count >= 1 && i == comArgs.Arguments.Count - 1))
-                {
-                    var sb = new StringBuilder();
-                    if (inputArgs.Count > command.Arguments.Count)
-                        for (int j = command.Arguments.Count + (recursive && comArgs.Arguments.Count > 1 ? 1 : 0); j < inputArgs.Count; j++)
+                if (inputArgs.Count > command.Arguments.Count)
+                    if (comArgs.Arguments.Count > 1 && i == comArgs.Arguments.Count - 1 &&
+                        ((!recursive && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || (recursive)))
+                    {
+                        var sb = new StringBuilder();
+                        for (var j = command.Arguments.Count + (recursive && comArgs.Arguments.Count > 1 ? 1 : 0);
+                            j < inputArgs.Count;
+                            j++)
                             sb.Append(' ').Append(inputArgs[j]);
-                    inputArgs[command.Arguments.Count - (recursive && comArgs.Arguments.Count > 1 ? 0 : 1)] += sb.ToString();
-                }
+                        inputArgs[command.Arguments.Count - (recursive && comArgs.Arguments.Count > 1 ? 0 : 1)] +=
+                            sb.ToString();
+                    }
 
                 //If there are not enough arguments supplied, handle accordingly
                 if (i >= inputArgs.Count)
@@ -223,7 +227,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 }
 
                 //If argument is an "enum" (Restricted to certin values), validate it
-                if (comArgs.Arguments[i].Enum) 
+                if (comArgs.Arguments[i].Enum)
                 {
                     //Check if passed value is a match for any of the possible values
                     var passed =
