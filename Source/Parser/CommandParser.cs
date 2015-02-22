@@ -110,7 +110,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Parses text in search of a comArgs (with prefix), and runs it accordingly.
+        /// Parses text in search of a commands (with prefix), and runs it accordingly.
         /// </summary>
         /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission</param>
         public void Parse(string input, int accessLevel = 0)
@@ -130,15 +130,15 @@ namespace Pyratron.Frameworks.Commands.Parser
                 return;
 
             //Now we are ready to go
-            //Split the string into command, ignoring spaces between quotes
+            //Split the string into arguments ignoring spaces between quotes
             var inputArgs = Regex.Matches(input, @"[\""].+?[\""]|[^ ]+")
                 .Cast<Match>()
                 .Select(m => m.Value)
                 .ToList();
 
-            //Search the commands for a matching comArgs
+            //Search the commands for a matching command
             var commands = Commands.Where(cmd => cmd.Aliases.Any(alias => alias.Equals(inputArgs[0])));
-            if (commands.Count() == 0) //If no comArgs found
+            if (commands.Count() == 0) //If no commands found found
                 OnParseError(this, string.Format("Command '{0}' not found.", inputArgs[0]));
             else
             {
@@ -190,7 +190,19 @@ namespace Pyratron.Frameworks.Commands.Parser
             //For each argument
             for (var i = 0; i < comArgs.Arguments.Count; i++)
             {
-                if (i >= inputArgs.Count) //If there are not enough arguments supplied, handle accordingly
+                //If the arguments are longer than they should be, merge them into the last one.
+                //This way a user does not need quotes for a chat message for example.
+                if ((!recursive && i == comArgs.Arguments.Count - 1 && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || (recursive && comArgs.Arguments.Count >= 1 && i == comArgs.Arguments.Count - 1))
+                {
+                    var sb = new StringBuilder();
+                    if (inputArgs.Count > command.Arguments.Count)
+                        for (int j = command.Arguments.Count + (recursive && comArgs.Arguments.Count > 1 ? 1 : 0); j < inputArgs.Count; j++)
+                            sb.Append(' ').Append(inputArgs[j]);
+                    inputArgs[command.Arguments.Count - (recursive && comArgs.Arguments.Count > 1 ? 0 : 1)] += sb.ToString();
+                }
+
+                //If there are not enough arguments supplied, handle accordingly
+                if (i >= inputArgs.Count)
                 {
                     if (comArgs.Arguments[i].Optional) //If optional, we can quit and set a default value
                     {
@@ -210,7 +222,8 @@ namespace Pyratron.Frameworks.Commands.Parser
                     return true;
                 }
 
-                if (comArgs.Arguments[i].Enum) //If argument is an "enum" (Restricted to certin values), validate it
+                //If argument is an "enum" (Restricted to certin values), validate it
+                if (comArgs.Arguments[i].Enum) 
                 {
                     //Check if passed value is a match for any of the possible values
                     var passed =
@@ -232,7 +245,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                         return true;
                     }
                     //Set the argument to the selected "enum" value
-                     returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
+                    returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
 
                     if (comArgs.Arguments[i].Arguments.Count > 0) //Parse its children
                     {
