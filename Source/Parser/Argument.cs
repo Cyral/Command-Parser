@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
+    /// <summary>
+    /// Represents a parameter that is passed with command. Arguments may be required or optional, may contain a restricted set
+    /// of values, and have their own nested arguments.
+    /// </summary>
     public class Argument : IArguable
     {
         /// <summary>
@@ -48,12 +52,6 @@ namespace Pyratron.Frameworks.Commands.Parser
             }
         }
 
-        /// <summary>
-        /// Nested arguments that are contained within this argument
-        /// Example: [foo [bar]]
-        /// </summary>
-        public List<Argument> Arguments { get; set; }
-
         private string value, defaultValue;
 
         /// <summary>
@@ -63,10 +61,21 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="optional">Indicates if this parameter is optional.</param>
         public Argument(string name, bool optional = false)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
             Arguments = new List<Argument>();
             Name = name;
             Optional = optional;
         }
+
+        #region IArguable Members
+
+        /// <summary>
+        /// Nested arguments that are contained within this argument
+        /// Example: [foo [bar]]
+        /// </summary>
+        public List<Argument> Arguments { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Creases a new command argument.
@@ -75,6 +84,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="optional">Indicates if this parameter is optional.</param>
         public static Argument Create(string name, bool optional = false)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
             return new Argument(name, optional);
         }
 
@@ -204,11 +214,14 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Adds an option to the argument. Options make the argument behave like an enum, where only certain string values are allowed.
+        /// Adds an option to the argument. Options make the argument behave like an enum, where only certain string values are
+        /// allowed.
         /// Each option can have children arguments.
         /// </summary>
         public Argument AddOption(Argument value)
         {
+            if (value == null) throw new ArgumentNullException("value");
+
             Enum = true;
             AddArgument(value);
             return this;
@@ -225,13 +238,25 @@ namespace Pyratron.Frameworks.Commands.Parser
             return this;
         }
 
-
         /// <summary>
-        /// Add a nested argument to the argument. All arguments are required by default, and are parsed in the order they are defined.
+        /// Add a nested argument to the argument. All arguments are required by default, and are parsed in the order they are
+        /// defined.
         /// </summary>
         public Argument AddArgument(Argument argument)
         {
-            Arguments.Add(argument);
+            if (argument == null) throw new ArgumentNullException("argument");
+
+            var optional = false;
+            foreach (var arg in Arguments)
+            {
+                if (arg.Optional)
+                    optional = true;
+                else if (optional)
+                    throw new InvalidOperationException("Optional arguments must come last.");
+
+                Arguments.Add(arg);
+            }
+
             return this;
         }
 
@@ -240,16 +265,10 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public Argument AddArguments(Argument[] arguments)
         {
-            bool optional = false;
-            foreach (var arg in arguments)
-            {
-                if (arg.Optional)
-                    optional = true;
-                else if (optional)
-                    throw new InvalidOperationException("Optional arguments must come last.");
-            }
+            if (arguments == null) throw new ArgumentNullException("arguments");
 
-            Arguments.AddRange(arguments);
+            foreach (var arg in arguments)
+                AddArgument(arg);
             return this;
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Pyratron.Frameworks.Commands.Parser
@@ -47,7 +46,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             if (arguments == null) throw new ArgumentNullException("arguments");
 
-            for (int i = 0; i < arguments.Count; i++)
+            for (var i = 0; i < arguments.Count; i++)
             {
                 var arg = arguments[i];
                 //Write bracket, name, and closing bracket for each argument

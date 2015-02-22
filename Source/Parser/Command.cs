@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Win32;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
+    /// <summary>
+    /// Represents a command that when called by its alias(es), executes a command with the specified parameters.
+    /// </summary>
     public class Command : IArguable
     {
         /// <summary>
@@ -21,11 +23,6 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// The strings that will call the command.
         /// </summary>
         public List<string> Aliases { get; set; }
-
-        /// <summary>
-        /// The input (Including alias and help) that are passed with the command.
-        /// </summary>
-        public List<Argument> Arguments { get; set; }
 
         /// <summary>
         /// Describes the command and provides basic information about it.
@@ -71,6 +68,15 @@ namespace Pyratron.Frameworks.Commands.Parser
             SetName(name);
         }
 
+        #region IArguable Members
+
+        /// <summary>
+        /// The input (Including alias and help) that are passed with the command.
+        /// </summary>
+        public List<Argument> Arguments { get; set; }
+
+        #endregion
+
         /// <summary>
         /// Creates a command with a human friendly name and a command alias.
         /// </summary>
@@ -107,6 +113,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public Command SetName(string name)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+
             Name = name;
             return this;
         }
@@ -117,6 +125,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="alias">Alias that will call the action (Ex: "help", "exit")</param>
         public Command AddAlias(string alias)
         {
+            if (string.IsNullOrEmpty(alias)) throw new ArgumentNullException("alias");
+
             Aliases.Add(alias);
             return this;
         }
@@ -127,7 +137,10 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="aliases">Aliases that will call the action (Ex: "help", "exit")</param>
         public Command AddAlias(params string[] aliases)
         {
-            Aliases.AddRange(aliases);
+            if (aliases == null) throw new ArgumentNullException("aliases");
+
+            foreach (var alias in aliases)
+                AddAlias(alias);
             return this;
         }
 
@@ -160,6 +173,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </param>
         public Command SetAction(Action<Argument[]> action)
         {
+            if (action == null) throw new ArgumentNullException("action");
+
             Action = action;
             return this;
         }
@@ -170,34 +185,44 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="arguments">The parsed input</param>
         public Command Execute(Argument[] arguments)
         {
+            if (arguments == null) throw new ArgumentNullException("arguments");
+
             Action.Invoke(arguments);
             return this;
         }
 
         /// <summary>
         /// Add an argument to the command. All input are required by default, and are parsed in the order they are defined.
+        /// Optional arguments must come last.
         /// </summary>
         public Command AddArgument(Argument argument)
         {
-            Arguments.Add(argument);
+            if (argument == null) throw new ArgumentNullException("argument");
+
+            var optional = false;
+            foreach (var arg in Arguments)
+            {
+                if (arg.Optional)
+                    optional = true;
+                else if (optional)
+                    throw new InvalidOperationException("Optional arguments must come last.");
+
+                Arguments.Add(arg);
+            }
+
             return this;
         }
 
         /// <summary>
         /// Adds an array of arguments to the command. Optional arguments must come last.
         /// </summary>
-        public  Command AddArguments(Argument[] arguments)
+        public Command AddArguments(Argument[] arguments)
         {
-            bool optional = false;
-            foreach (var arg in arguments)
-            {
-                if (arg.Optional)
-                    optional = true;
-                else if (optional)
-                    throw  new InvalidOperationException("Optional arguments must come last.");
-            }
+            if (arguments == null) throw new ArgumentNullException("arguments");
 
-            Arguments.AddRange(arguments);
+            foreach (var arg in arguments)
+                AddArgument(arg);
+
             return this;
         }
     }
