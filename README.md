@@ -1,2 +1,5 @@
-# Command-Parser
-Simple and lightweight command parsing library. Can be used for parsing command line arguments, or user given commands in chat like applications.
+# Command Parser
+## ALPHA!
+Simple, lightweight, but powerful command parsing library. Useful for chat or game applications.
+
+Documentation will be created when the final library is released. Do not rely on the current implementation.
