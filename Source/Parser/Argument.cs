@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
@@ -64,7 +65,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
             Arguments = new List<Argument>();
-            Name = name;
+            Name = name.ToLower();
             Optional = optional;
         }
 
@@ -148,72 +149,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             Default = value.ToString();
             return this;
         }
-
-        // <summary>
-        /// Creates an argument from a string automatically.
-        /// </summary>
-        /// <example>
-        /// A command such as "Give a player an item X times" could be defined as:
-        /// "%lt;player&gt; &lt;item&gt; [amount]"
-        /// Where &gt; &lt; represent required items, and [ ] represent optional items.
-        /// These tags can also be nested to represent more complex values.
-        /// (value) represents a default value for an argument. (Must follow immediately)
-        /// </example>
-        /// <param name="input">The string with the argument info, see example for more information.</param>
-        public static Argument[] InferArguments(string input)
-        {
-            //Trim input and make sure it isn't null
-            if (string.IsNullOrEmpty(input)) throw new ArgumentNullException("input");
-            input = input.Trim();
-
-            var inputArgs = input.Split(' '); //Split into arguments
-
-            var result = new Argument[inputArgs.Length];
-
-            for (var i = 0; i < inputArgs.Length; i++)
-            {
-                var arg = inputArgs[i];
-
-                //Find type
-                bool? required = null;
-                if (arg.StartsWith("<") && arg.EndsWith(">"))
-                    required = true;
-                else if (arg.StartsWith("[") && (arg.EndsWith("]") || (arg.EndsWith(")") && arg.Contains("]("))))
-                    required = false;
-                if (required == null)
-                    throw new InvalidOperationException(
-                        string.Format(
-                            "Argument '{0}' is not defined properly. Arguments must be surrounded with <> if they are required, or [] if they are optional.",
-                            arg));
-
-                var end = arg.Length - 2;
-
-                //Find default value if it has one
-                var indexDefault = required.Value
-                    ? arg.IndexOf(">(", StringComparison.Ordinal)
-                    : arg.IndexOf("](", StringComparison.Ordinal);
-                var defaultArg = string.Empty;
-                if (arg.EndsWith(")") && indexDefault > 1)
-                {
-                    defaultArg = arg.Substring(indexDefault + 2, end - (indexDefault + 1));
-                    end = indexDefault - 1;
-                }
-
-                var argName = arg.Substring(1, end); //Take all but first and last character to find name
-                if (string.IsNullOrEmpty(argName))
-                    throw new InvalidOperationException(
-                        string.Format("Argument {0} must contain a name within their brackets.", i + 1));
-                argName = char.ToUpper(argName[0]) + argName.Substring(1); //Uppercase first to look nicer
-
-                //Create argument
-                var cmdArg = new Argument(argName, !required.Value);
-                cmdArg.SetDefault(defaultArg);
-                result[i] = cmdArg;
-            }
-
-            return result;
-        }
-
+ 
         /// <summary>
         /// Adds an option to the argument. Options make the argument behave like an enum, where only certain string values are
         /// allowed.

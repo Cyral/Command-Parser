@@ -40,16 +40,20 @@ namespace Demo
                 }
             });
 
-            //Tip 1: Automatically create arguments
+            //Example Commands
             Parser.AddCommand(Command
                 .Create("Give Item")
                 .AddAlias("item", "giveitem", "give") //Aliases (Note multiple at a time!)
                 .SetDescription("Gives a user an item.")
                 .SetAction(OnGiveExecuted)
-                .AddArguments(Argument
-                    .InferArguments("<user> <item> [amount](10)"))
-                //Watch how it will automatically create these parameters!
-                .RestrictAccess(10)); //User must have 10 permission power to run command
+                .AddArgument(Argument
+                    .Create("user"))
+                .AddArgument(Argument
+                    .Create("item"))
+                .AddArgument(Argument
+                    .Create("amount")
+                    .MakeOptional()
+                    .SetDefault(10)));
 
             Parser.AddCommand(Command
                 .Create("Mail")
@@ -145,15 +149,7 @@ namespace Demo
                     .SetDefault("item")));
 
 
-            //Tip 2: Generate helpful command usage
-            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[3]));
-            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[4]));
-            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[5]));
-
-            //Tip 2: Convert from premade arguments to argument string
-            Console.WriteLine(Parser.Commands[2].Arguments.GenerateArgumentString());
-
-            //Tip 2: Generate helpful command usage
+            //Tip: Generate helpful command usage
             Console.WriteLine(Parser.GenerateUsage(Parser.Commands[2]));
 
             Console.WriteLine("Enter command:\n");

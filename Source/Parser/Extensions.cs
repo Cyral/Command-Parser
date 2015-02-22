@@ -26,8 +26,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates an argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
-        /// Strings like this are what <c>Command.InferArguments(..)</c> take.
+        /// Generates an readable argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
+        /// Strings like this are similar to what <c>Command.InferArguments(..)</c> take.
         /// </summary>
         public static string GenerateArgumentString(this List<Argument> arguments)
         {
@@ -39,8 +39,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates an argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
-        /// Strings like this are what <c>Command.InferArguments(..)</c> take.
+        /// Generates an readable argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
+        /// Strings like this are similar to what <c>Command.InferArguments(..)</c> take.
         /// </summary>
         private static void WriteArguments(List<Argument> arguments, StringBuilder sb)
         {
