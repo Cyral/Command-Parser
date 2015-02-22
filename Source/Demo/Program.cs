@@ -74,17 +74,18 @@ namespace Demo
                 .SetAction(
                     delegate(Argument[] arguments)
                     {
-                        Console.WriteLine("Godmode turned {0} for {1}", arguments.ArgumentFromName("status").Value, arguments.ArgumentFromName("player").Value);
+                        Console.WriteLine("Godmode turned {0} for {1}", arguments.ArgumentFromName("status").Value,
+                            arguments.ArgumentFromName("player").Value);
                     })
-                 .AddArgument(Argument
+                .AddArgument(Argument
                     .Create("player")
                     .SetDefault("User")
-                 .AddArgument(Argument
-                    .Create("status")
-                    .MakeOptional()
-                    .SetDefault("on")
-                    .AddOption(Argument.Create("on"))
-                    .AddOption(Argument.Create("off")))));
+                    .AddArgument(Argument
+                        .Create("status")
+                        .MakeOptional()
+                        .SetDefault("on")
+                        .AddOption(Argument.Create("on"))
+                        .AddOption(Argument.Create("off")))));
 
             Parser.AddCommand(Command
                 .Create("Rain")
@@ -110,6 +111,39 @@ namespace Demo
                     delegate(Argument[] arguments) { Console.WriteLine("Player banned: {0}", arguments[0].Value); })
                 .AddArgument(Argument
                     .Create("player name|IP address")));
+
+            Parser.AddCommand(Command
+                .Create("Worth")
+                .AddAlias("worth")
+                .SetDescription("Item worth")
+                .SetAction(
+                    delegate(Argument[] arguments)
+                    {
+                        var type = arguments.ArgumentFromName("type").Value;
+                        if (type == "hand")
+                            Console.WriteLine("Items in hand worth: $10");
+                        else if (type == "all")
+                            Console.WriteLine("All your items worth: $100");
+                        else if (type == "item")
+                            Console.WriteLine("{1} of {0} is worth ${2}", arguments.ArgumentFromName("itemname").Value,
+                                arguments.ArgumentFromName("amount").Value,
+                                int.Parse(arguments.ArgumentFromName("amount").Value)*10);
+                    })
+                .AddArgument(Argument
+                    .Create("type")
+                    .AddOption(Argument.Create("hand"))
+                    .AddOption(Argument.Create("all"))
+                    .AddOption(Argument
+                        .Create("item")
+                        .MakeOptional()
+                        .AddArgument(Argument
+                            .Create("itemname"))
+                        .AddArgument(Argument
+                            .Create("amount")
+                            .SetDefault("10")
+                            .MakeOptional()))
+                    .SetDefault("item")));
+
 
             //Tip 2: Generate helpful command usage
             Console.WriteLine(Parser.GenerateUsage(Parser.Commands[3]));

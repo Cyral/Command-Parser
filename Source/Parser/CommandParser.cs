@@ -208,10 +208,14 @@ namespace Pyratron.Frameworks.Commands.Parser
 
                 if (comArgs.Arguments[i].Enum) //If argument is an "enum" (Restricted to certin values), validate it
                 {
+                    //Check if passed value is a match for any of the possible values
                     var passed =
                         comArgs.Arguments[i].Arguments.Any(
                             arg => string.Equals(arg.Name, inputArgs[i], StringComparison.OrdinalIgnoreCase));
-                    if (!passed)
+                    //If it is not, but there is a default value, use the default value
+                    if (!passed && !string.IsNullOrEmpty(comArgs.Arguments[i].Default))
+                        inputArgs.Insert(i, comArgs.Arguments[i].Default);
+                    else if (!passed) //If it was not found, alert the user, unless it is optional
                     {
                         if (comArgs.Arguments[i].Optional)
                         {
@@ -223,9 +227,8 @@ namespace Pyratron.Frameworks.Commands.Parser
                                 GenerateEnumArguments(comArgs.Arguments[i])));
                         return true;
                     }
-
-                    returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
-                        //Set the argument to the selected "enum" value
+                    //Set the argument to the selected "enum" value
+                     returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
 
                     if (comArgs.Arguments[i].Arguments.Count > 0) //Parse its children
                     {
