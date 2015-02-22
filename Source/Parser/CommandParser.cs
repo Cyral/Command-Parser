@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
@@ -129,8 +130,11 @@ namespace Pyratron.Frameworks.Commands.Parser
                 return;
 
             //Now we are ready to go
-            //Split the string into command
-            var inputArgs = input.Split(' ').ToList();
+            //Split the string into command, ignoring spaces between quotes
+            var inputArgs = Regex.Matches(input, @"[\""].+?[\""]|[^ ]+")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToList();
 
             //Search the commands for a matching comArgs
             var commands = Commands.Where(cmd => cmd.Aliases.Any(alias => alias.Equals(inputArgs[0])));
