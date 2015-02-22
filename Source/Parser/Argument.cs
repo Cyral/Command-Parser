@@ -239,16 +239,16 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public bool IsValid(string value)
         {
-            if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("value");
             return Rule.Validate(value);
         }
 
         /// <summary>
         /// Resets a value to empty, bypassing any validation.
         /// </summary>
-        internal void ResetValue()
+        internal Argument ResetValue()
         {
             value = string.Empty;
+            return this;
         }
 
         #region Nested type: Class
@@ -258,11 +258,11 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         public class ValidationRule
         {
-            public static ValidationRule Integer, Double, Alphanumerical, Email, IP;
-            internal static ValidationRule AlwaysTrue;
+            public static readonly ValidationRule Integer, Double, Alphanumerical, Email, IP;
+            internal static readonly ValidationRule AlwaysTrue;
 
             private static readonly Regex
-                alphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$");
+                AlphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$");
 
             /// <summary>
             /// A user friendly name that will be displayed in an error.
@@ -273,7 +273,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             /// <summary>
             /// A function that returns true if the string passed passes the rule.
             /// </summary>
-            public Func<string, bool> Validate { get; set; }
+            public Predicate<string> Validate { get; set; }
 
             static ValidationRule()
             {
@@ -294,7 +294,7 @@ namespace Pyratron.Frameworks.Commands.Parser
 
                 Email = new ValidationRule("Email", s => s.Contains('@') && s.Contains('.'));
 
-                Alphanumerical = new ValidationRule("Alphanumeric string", s => alphaNumericReg.IsMatch(s));
+                Alphanumerical = new ValidationRule("Alphanumeric string", s => AlphaNumericReg.IsMatch(s));
 
                 IP = new ValidationRule("IP Address", delegate(string s)
                 {
@@ -309,7 +309,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             /// </summary>
             /// <param name="friendlyName"> A user friendly name that will be displayed in an error. "Must be a valid ____"</param>
             /// <param name="validate">A function that returns true if the string passed passes the rule.</param>
-            public ValidationRule(string friendlyName, Func<string, bool> validate)
+            public ValidationRule(string friendlyName, Predicate<string> validate)
             {
                 Name = friendlyName;
                 Validate = validate;
@@ -320,7 +320,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             /// </summary>
             /// <param name="friendlyName"> A user friendly name that will be displayed in an error. "Must be a valid ____"</param>
             /// <param name="validate">A function that returns true if the string passed passes the rule.</param>
-            public ValidationRule Create(string friendlyName, Func<string, bool> validate)
+            public ValidationRule Create(string friendlyName, Predicate<string> validate)
             {
                 return new ValidationRule(friendlyName, validate);
             }

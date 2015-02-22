@@ -26,6 +26,12 @@ namespace Pyratron.Frameworks.Commands.Parser
         public List<string> Aliases { get; set; }
 
         /// <summary>
+        /// A rule that determines if the command can be executed, which is true by default.
+        /// Returns an error message if validation does not succeed. Function is called before the command arguments are parsed.
+        /// </summary>
+        public Func<Command, string> CanExecute { get; set; }
+
+        /// <summary>
         /// Describes the command and provides basic information about it.
         /// </summary>
         public string Description { get; set; }
@@ -67,6 +73,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             Arguments = new List<Argument>();
             Aliases = new List<string>();
             SetName(name);
+            CanExecute = command => string.Empty; //Can execute always by default
         }
 
         #region IArguable Members
@@ -182,13 +189,26 @@ namespace Pyratron.Frameworks.Commands.Parser
 
         /// <summary>
         /// Executes a command with the specified input and an optional access level.
+        /// If CanExecute returns false, the command is not run.
         /// </summary>
         /// <param name="arguments">The parsed input</param>
         public Command Execute(Argument[] arguments)
         {
             if (arguments == null) throw new ArgumentNullException("arguments");
 
-            Action.Invoke(arguments);
+            if (string.IsNullOrEmpty(CanExecute(this)))
+                Action(arguments);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the rule that determines if the command can be executed.
+        /// The function should return an error message if the command cannot be executed. Function is called before the command
+        /// arguments are parsed.
+        /// </summary>
+        public Command SetExecutePredicate(Func<Command, string> canExecute)
+        {
+            CanExecute = canExecute;
             return this;
         }
 

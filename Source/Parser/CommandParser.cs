@@ -124,7 +124,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 var index = input.IndexOf(Prefix, StringComparison.OrdinalIgnoreCase);
                 if (index == -1)
                     return;
-                input = input.Substring(index, Prefix.Length);
+                input = input.Remove(index, Prefix.Length);
             }
             if (string.IsNullOrEmpty(input))
                 return;
@@ -150,6 +150,14 @@ namespace Pyratron.Frameworks.Commands.Parser
                     OnParseError(this,
                         string.Format("Command '{0}' requires permission level {1}. (Currently only {2})", command.Name,
                             command.AccessLevel, accessLevel));
+                    return;
+                }
+
+                //Verify the command can be run
+                var canExecute = command.CanExecute(command);
+                if (!string.IsNullOrEmpty(canExecute))
+                {
+                    OnParseError(this, canExecute);
                     return;
                 }
 

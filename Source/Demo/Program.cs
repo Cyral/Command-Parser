@@ -9,6 +9,7 @@ namespace Pyratron.Frameworks.Commands.Demo
     /// </summary>
     public static class Program
     {
+        private static bool banned;
         public static CommandParser Parser { get; private set; }
 
         public static void Main()
@@ -24,6 +25,11 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .AddAlias("banuser")
                 .SetDescription("Bans a user from the server.") //Description
                 .SetAction(OnBanExecuted)
+                .SetExecutePredicate(delegate
+                {
+                    if (banned) return "You are already banned!";
+                    return string.Empty;
+                })
                 //Action to be executed when command is ran with correct parameters (Of course, can be method, lamba, delegate, etc)
                 .AddArgument(Argument //Add an argument
                     .Create("User")));
@@ -34,6 +40,11 @@ namespace Pyratron.Frameworks.Commands.Demo
                 Aliases = new List<string> {"unban", "unbanuser"},
                 Description = "Unbans a user from the server.",
                 Action = OnUnbanExecuted,
+                CanExecute = (delegate
+                {
+                    if (!banned) return "You are not banned!";
+                    return string.Empty;
+                }),
                 Arguments = new List<Argument>
                 {
                     new Argument("User")
@@ -204,12 +215,14 @@ namespace Pyratron.Frameworks.Commands.Demo
         {
             var user = args.ArgumentFromName("user").Value;
             Console.WriteLine("User {0} was unbanned!", user);
+            banned = false;
         }
 
         private static void OnBanExecuted(Argument[] args)
         {
             var user = args.ArgumentFromName("user").Value;
             Console.WriteLine("User {0} was banned!", user);
+            banned = true;
         }
 
         private static void OnParseError(object sender, string message)
