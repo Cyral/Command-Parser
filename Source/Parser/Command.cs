@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
@@ -199,17 +200,11 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             if (argument == null) throw new ArgumentNullException("argument");
 
-            var optional = false;
-            foreach (var arg in Arguments)
-            {
-                if (arg.Optional)
-                    optional = true;
-                else if (optional)
-                    throw new InvalidOperationException("Optional arguments must come last.");
+            var optional = Arguments.Any(arg => arg.Optional);
+            if (optional && !argument.Optional)
+                throw new InvalidOperationException("Optional arguments must come last.");
 
-                Arguments.Add(arg);
-            }
-
+            Arguments.Add(argument);
             return this;
         }
 

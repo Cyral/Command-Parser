@@ -192,9 +192,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             {
                 //If the arguments are longer than they should be, merge them into the last one.
                 //This way a user does not need quotes for a chat message for example.
-                if (inputArgs.Count > command.Arguments.Count)
-                    if (comArgs.Arguments.Count >= 1 && i == comArgs.Arguments.Count - 1 &&
-                        ((!recursive && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || (recursive)))
+                if ((i > 0 || i == comArgs.Arguments.Count - 1) && inputArgs.Count > command.Arguments.Count)
+                    if (comArgs.Arguments.Count >= 1 &&
+                        ((!recursive && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || recursive))
                     {
                         var sb = new StringBuilder();
                         for (var j = command.Arguments.Count + (recursive && comArgs.Arguments.Count > 1 ? 1 : 0);
