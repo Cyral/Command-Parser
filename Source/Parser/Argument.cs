@@ -52,7 +52,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// The value of this argument parsed from the command.
         /// </summary>
-        public string Value
+        internal string Value
         {
             get { return value; }
             set
@@ -66,7 +66,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             }
         }
 
-        private string value, defaultValue;
+        internal string value, defaultValue;
 
         /// <summary>
         /// Constructs a new command argument.
@@ -195,10 +195,9 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Restricts the possible values to a list of children, acting as if it were an enum.
-        /// Each option can have children arguments.
+        /// Restricts the possible values to a list of specific values, acting as if it were an enum.
+        /// Each option can have children arguments that define specific behavior.
         /// </summary>
-        /// <returns></returns>
         public Argument MakeEnum()
         {
             Enum = true;
@@ -262,7 +261,8 @@ namespace Pyratron.Frameworks.Commands.Parser
             internal static readonly ValidationRule AlwaysTrue;
 
             private static readonly Regex
-                AlphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$");
+                AlphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$"),
+                EmailRegex = new Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,26}$", RegexOptions.IgnoreCase);
 
             /// <summary>
             /// A user friendly name that will be displayed in an error.
@@ -292,7 +292,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                     return double.TryParse(s, out result);
                 });
 
-                Email = new ValidationRule("Email", s => s.Contains('@') && s.Contains('.'));
+                Email = new ValidationRule("Email", s => EmailRegex.IsMatch(s));
 
                 Alphanumerical = new ValidationRule("Alphanumeric string", s => AlphaNumericReg.IsMatch(s));
 
@@ -328,7 +328,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             /// <summary>
             /// Returns the name of the rule that should be displayed in an error message.
             /// </summary>
-            public string GetError()
+            internal string GetError()
             {
                 return Name.ToLower();
             }

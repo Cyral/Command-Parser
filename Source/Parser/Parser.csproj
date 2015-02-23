@@ -43,7 +43,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Argument.cs" />
     <Compile Include="CommandParser.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="CommandExtensions.cs" />
     <Compile Include="IArguable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

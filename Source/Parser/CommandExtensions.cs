@@ -4,12 +4,15 @@ using System.Text;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
-    public static class Extensions
+    /// <summary>
+    /// Provides extension methods for arguments that can be used with the library.
+    /// </summary>
+    public static class CommandExtensions
     {
         /// <summary>
-        /// Retrieves an argument by it's name from a <c>Argument</c> collection or array.
+        /// Retrieves an argument's value by it's name from an <c>Argument</c> collection or array.
         /// </summary>
-        public static Argument ArgumentFromName(this IEnumerable<Argument> arguments, string name)
+        public static string FromName(this IEnumerable<Argument> arguments, string name)
         {
             if (arguments == null) throw new ArgumentNullException("arguments");
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
@@ -17,9 +20,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             foreach (var arg in arguments)
             {
                 if (arg.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                    return arg;
+                    return arg.Value;
                 if (arg.Arguments.Count > 0) //If argument has nested args, recursively search
-                    return ArgumentFromName(arg.Arguments, name);
+                    return FromName(arg.Arguments, name);
             }
 
             throw new InvalidOperationException(string.Format("No argument of name {0} found.", name));
@@ -27,22 +30,20 @@ namespace Pyratron.Frameworks.Commands.Parser
 
         /// <summary>
         /// Generates an readable argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
-        /// Strings like this are similar to what <c>Command.InferArguments(..)</c> take.
         /// </summary>
         public static string GenerateArgumentString(this List<Argument> arguments)
         {
             if (arguments == null) throw new ArgumentNullException("arguments");
 
             var sb = new StringBuilder();
-            WriteArguments(arguments, sb);
+            arguments.WriteArguments(sb);
             return sb.ToString().Trim();
         }
 
         /// <summary>
         /// Generates an readable argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
-        /// Strings like this are similar to what <c>Command.InferArguments(..)</c> take.
         /// </summary>
-        private static void WriteArguments(List<Argument> arguments, StringBuilder sb)
+        private static void WriteArguments(this List<Argument> arguments, StringBuilder sb)
         {
             if (arguments == null) throw new ArgumentNullException("arguments");
 

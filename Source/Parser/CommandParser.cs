@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace Pyratron.Frameworks.Commands.Parser
 {
     /// <summary>
-    /// Handles commands and lists the comArgs instances.
+    /// Handles and parses commands and their arguments.
     /// </summary>
     public class CommandParser
     {
@@ -115,7 +115,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission</param>
         public void Parse(string input, int accessLevel = 0)
         {
-            if (string.IsNullOrEmpty(input)) throw new ArgumentNullException("input");
+            if (string.IsNullOrEmpty(input))
+                return;
 
             //Remove the prefix from the input and trim it just in case
             input = input.Trim();
@@ -300,7 +301,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// Returns a list of possible values for an enum (type) argument in a readable format.
         /// </summary>
-        private string GenerateEnumArguments(Argument argument)
+        private static string GenerateEnumArguments(Argument argument)
         {
             if (!argument.Enum) throw new ArgumentException("Argument must be an enum style argument.");
 

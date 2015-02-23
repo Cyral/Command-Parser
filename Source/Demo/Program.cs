@@ -10,7 +10,7 @@ namespace Pyratron.Frameworks.Commands.Demo
     public static class Program
     {
         private static bool banned;
-        public static CommandParser Parser { get; private set; }
+        private static CommandParser Parser { get; set; }
 
         public static void Main()
         {
@@ -69,8 +69,8 @@ namespace Pyratron.Frameworks.Commands.Demo
             Parser.AddCommand(Command.Create("Register").AddAlias("register").SetDescription("Create an account")
                 .SetAction(arguments =>
                 {
-                    var user = arguments.ArgumentFromName("username").Value;
-                    var email = arguments.ArgumentFromName("email").Value;
+                    var user = arguments.FromName("username");
+                    var email = arguments.FromName("email");
                     Console.WriteLine("{0} ({1}) has registered.", user, email);
                 })
                 .AddArgument(Argument.Create("username").SetValidator(Argument.ValidationRule.Alphanumerical))
@@ -98,8 +98,8 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .SetAction(
                     delegate(Argument[] arguments)
                     {
-                        Console.WriteLine("Godmode turned {0} for {1}", arguments.ArgumentFromName("status").Value,
-                            arguments.ArgumentFromName("player").Value);
+                        Console.WriteLine("Godmode turned {0} for {1}", arguments.FromName("status"),
+                            arguments.FromName("player"));
                     })
                 .AddArgument(Argument
                     .Create("player")
@@ -118,7 +118,7 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .SetAction(
                     delegate(Argument[] arguments)
                     {
-                        Console.WriteLine("Rain turned {0}", arguments.ArgumentFromName("type").Value);
+                        Console.WriteLine("Rain turned {0}", arguments.FromName("type"));
                     })
                 .AddArgument(Argument
                     .Create("type")
@@ -132,7 +132,7 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .AddAlias("banip")
                 .SetDescription("Bans a player by IP")
                 .SetAction(
-                    delegate(Argument[] arguments) { Console.WriteLine("Player banned: {0}", arguments[0].Value); })
+                    delegate(Argument[] arguments) { Console.WriteLine("Player banned: {0}", arguments[0]); })
                 .AddArgument(Argument
                     .Create("player name|IP address")));
 
@@ -143,15 +143,15 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .SetAction(
                     delegate(Argument[] arguments)
                     {
-                        var type = arguments.ArgumentFromName("type").Value;
+                        var type = arguments.FromName("type");
                         if (type == "hand")
                             Console.WriteLine("Items in hand worth: $10");
                         else if (type == "all")
                             Console.WriteLine("All your items worth: $100");
                         else if (type == "item")
-                            Console.WriteLine("{1} of {0} is worth ${2}", arguments.ArgumentFromName("itemname").Value,
-                                arguments.ArgumentFromName("amount").Value,
-                                int.Parse(arguments.ArgumentFromName("amount").Value)*10);
+                            Console.WriteLine("{1} of {0} is worth ${2}", arguments.FromName("itemname"),
+                                arguments.FromName("amount"),
+                                int.Parse(arguments.FromName("amount"))*10);
                     })
                 .AddArgument(Argument
                     .Create("type")
@@ -187,40 +187,45 @@ namespace Pyratron.Frameworks.Commands.Demo
 
         private static void OnMailExecuted(Argument[] args)
         {
-            var type = args.ArgumentFromName("type").Value;
-            if (type == "read")
-                Console.WriteLine("No new mail!");
-            else if (type == "clear")
-                Console.WriteLine("Mail cleared!");
-            else if (type == "send")
+            var type = args.FromName("type");
+            switch (type)
             {
-                var user = args.ArgumentFromName("user").Value;
-                var message = args.ArgumentFromName("message").Value;
+                case "read":
+                    Console.WriteLine("No new mail!");
+                    break;
+                case "clear":
+                    Console.WriteLine("Mail cleared!");
+                    break;
+                case "send":
+                    var user = args.FromName("user");
+                    var message = args.FromName("message");
 
-                Console.WriteLine("{0} has been sent the message: {1}", user, message);
+                    Console.WriteLine("{0} has been sent the message: {1}", user, message);
+                    break;
+                default:
+                    Console.WriteLine("Welcome to the mail system!");
+                    break;
             }
-            else
-                Console.WriteLine("Welcome to the mail system!");
         }
 
         private static void OnGiveExecuted(Argument[] args)
         {
-            var user = args.ArgumentFromName("user").Value;
-            var item = args.ArgumentFromName("item").Value;
-            var amount = args.ArgumentFromName("amount").Value;
+            var user = args.FromName("user");
+            var item = args.FromName("item");
+            var amount = args.FromName("amount");
             Console.WriteLine("User {0} was given {1} of {2}", user, amount, item);
         }
 
         private static void OnUnbanExecuted(Argument[] args)
         {
-            var user = args.ArgumentFromName("user").Value;
+            var user = args.FromName("user");
             Console.WriteLine("User {0} was unbanned!", user);
             banned = false;
         }
 
         private static void OnBanExecuted(Argument[] args)
         {
-            var user = args.ArgumentFromName("user").Value;
+            var user = args.FromName("user");
             Console.WriteLine("User {0} was banned!", user);
             banned = true;
         }
