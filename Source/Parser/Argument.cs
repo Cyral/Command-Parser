@@ -262,7 +262,7 @@ namespace Pyratron.Frameworks.Commands.Parser
 
             private static readonly Regex
                 AlphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$"),
-                EmailRegex = new Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,26}$", RegexOptions.IgnoreCase);
+                EmailRegex = new Regex("^[A-Z0-9._%+-]+@[A-Z]{1}[A-Z0-9.-]+.[A-Z]{2,26}$", RegexOptions.IgnoreCase);
 
             /// <summary>
             /// A user friendly name that will be displayed in an error.

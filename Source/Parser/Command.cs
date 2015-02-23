@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Pyratron.Frameworks.Commands.Parser
 {
@@ -116,6 +117,46 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
+        /// Creates a help string giving information on the command.
+        /// </summary>
+        /// <example>
+        /// Example:
+        /// Ban - Bans a user (Usage: ban &lt;user&gt;)
+        /// </example>
+        /// <param name="alias">
+        /// Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real
+        /// input is "ban", make sure we use the alias)
+        /// </param>
+        public string ShowHelp(string alias = "")
+        {
+            var sb = new StringBuilder();
+            return sb.Append(Name)
+                .Append(" - ")
+                .Append(Description)
+                .Append(" (Usage: ")
+                .Append(GenerateUsage(alias))
+                .Append(')').ToString();
+        }
+
+        /// <summary>
+        /// Generates help text defining the usage of a comArgs
+        /// </summary>
+        /// <param name="alias">
+        /// Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real
+        /// input is "ban", make sure we use the alias)
+        /// </param>
+        public string GenerateUsage(string alias = "")
+        {
+            var sb = new StringBuilder();
+            if (Aliases.Count <= 0) return string.Empty;
+            return
+                sb.Append(string.IsNullOrEmpty(alias) ? Aliases[0] : alias)
+                    .Append(' ')
+                    .Append(Arguments.GenerateArgumentString())
+                    .ToString();
+        }
+
+        /// <summary>
         /// Sets a friendly name for the command.
         /// Note that the actual "/command" is defined as an alias.
         /// </summary>
@@ -135,7 +176,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             if (string.IsNullOrEmpty(alias)) throw new ArgumentNullException("alias");
 
-            Aliases.Add(alias);
+            Aliases.Add(alias.ToLower());
             return this;
         }
 

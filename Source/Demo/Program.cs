@@ -168,9 +168,11 @@ namespace Pyratron.Frameworks.Commands.Demo
                             .MakeOptional()))
                     .SetDefault("item")));
 
+            //Tip: Show command help
+            Console.WriteLine(Parser.Commands[2].ShowHelp());
 
             //Tip: Generate helpful command usage
-            Console.WriteLine(Parser.GenerateUsage(Parser.Commands[2]));
+            Console.WriteLine(Parser.Commands[2].GenerateUsage());
 
             Console.WriteLine("Enter command:\n");
             while (true)

@@ -91,25 +91,6 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates help text defining the usage of a comArgs
-        /// </summary>
-        /// <param name="alias">
-        /// Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real
-        /// comArgs is "ban", make sure we use the alias)
-        /// </param>
-        public string GenerateUsage(Command command, string alias = "")
-        {
-            var sb = new StringBuilder();
-            if (command.Aliases.Count <= 0) return string.Empty;
-            sb.Append(Prefix);
-            sb.Append(string.IsNullOrEmpty(alias) ? command.Aliases[0] : alias.ToLower());
-            sb.Append(' ');
-            sb.Append(command.Arguments.GenerateArgumentString());
-
-            return sb.ToString();
-        }
-
-        /// <summary>
         /// Parses text in search of a commands (with prefix), and runs it accordingly.
         /// </summary>
         /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission</param>
@@ -140,7 +121,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             //Search the commands for a matching command
             var commands = Commands.Where(cmd => cmd.Aliases.Any(alias => alias.Equals(inputArgs[0])));
             if (commands.Count() == 0) //If no commands found found
-                OnParseError(this, string.Format("Command '{0}' not found.", inputArgs[0]));
+                NoCommandsFound(inputArgs);
             else
             {
                 var command = commands.First(); //Find command
@@ -176,6 +157,69 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
+        /// Ran when no commands are found. Will create an error detailing what went wrong.
+        /// </summary>
+        private void NoCommandsFound(List<string> inputArgs)
+        {
+            OnParseError(this, string.Format("Command '{0}' not found.", inputArgs[0]));
+            //Find related commands (Did you mean?
+            var related = FindRelatedCommands(inputArgs[0]);
+
+            if (related.Count > 0)
+            {
+                var message = FormatRelatedCommands(related);
+                OnParseError(this, string.Format("Did you mean: {0}?", message));
+            }
+        }
+
+        /// <summary>
+        /// Takes input from <c>FindRelatedCommands</c> and generates a readable string
+        /// </summary>
+        private string FormatRelatedCommands(List<string> related)
+        {
+            var sb = new StringBuilder();
+            for (var i = 0; i < related.Count; i++)
+            {
+                sb.Append('\'').Append(related[i]).Append('\'');
+                if (related.Count > 1)
+                {
+                    if (i == related.Count - 2)
+                        sb.Append(", or ");
+                    else if (i < related.Count - 1)
+                        sb.Append(", ");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Finds command aliases related to the input command that may have been spelled incorrectly
+        /// </summary>
+        private List<string> FindRelatedCommands(string input)
+        {
+            var related = new List<string>();
+            foreach (var command in Commands)
+            {
+                foreach (var alias in command.Aliases)
+                {
+                    if ((alias.StartsWith(input)) //If the user did not complete the command
+                        //If the user missed the last few letters
+                        || (input.Length >= 2 && alias.StartsWith(input.Substring(0, 2)))
+                        //If user missed last few letters
+                        || (input.Length > 2 && alias.EndsWith(input.Substring(input.Length - 2, 2)))
+                        //If user mispelled middle characters
+                        || (alias.StartsWith(input.Substring(0, 1)) && alias.EndsWith(input.Substring(input.Length - 1, 1))))
+                    {
+                        related.Add(alias);
+                        break;
+                    }
+                }
+            }
+            return related;
+        }
+
+        /// <summary>
         /// Resets the command back to their default values
         /// </summary>
         private void ResetArgs(IArguable command)
@@ -201,18 +245,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             {
                 //If the arguments are longer than they should be, merge them into the last one.
                 //This way a user does not need quotes for a chat message for example.
-                if ((i > 0 || i == comArgs.Arguments.Count - 1) && inputArgs.Count > command.Arguments.Count)
-                    if (comArgs.Arguments.Count >= 1 &&
-                        ((!recursive && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || recursive))
-                    {
-                        var sb = new StringBuilder();
-                        for (var j = command.Arguments.Count + (recursive && comArgs.Arguments.Count > 1 ? 1 : 0);
-                            j < inputArgs.Count;
-                            j++)
-                            sb.Append(' ').Append(inputArgs[j]);
-                        inputArgs[command.Arguments.Count - (recursive && comArgs.Arguments.Count > 1 ? 0 : 1)] +=
-                            sb.ToString();
-                    }
+                MergeLastArguments(recursive, command, comArgs, inputArgs, i);
 
                 //If there are not enough arguments supplied, handle accordingly
                 if (i >= inputArgs.Count)
@@ -227,11 +260,11 @@ namespace Pyratron.Frameworks.Commands.Parser
                         OnParseError(this,
                             string.Format("Invalid arguments, {0} required. Usage: {1}",
                                 GenerateEnumArguments(comArgs.Arguments[i]),
-                                GenerateUsage(command, commandText)));
+                                command.GenerateUsage(commandText)));
                     else
                         OnParseError(this,
                             string.Format("Invalid arguments, '{0}' required. Usage: {1}", comArgs.Arguments[i].Name,
-                                GenerateUsage(command, commandText)));
+                                command.GenerateUsage(commandText)));
                     return true;
                 }
 
@@ -277,13 +310,8 @@ namespace Pyratron.Frameworks.Commands.Parser
                 }
 
                 //Check for validation rule
-                if (!string.IsNullOrEmpty(inputArgs[i]) && !comArgs.Arguments[i].IsValid(inputArgs[i]))
-                {
-                    OnParseError(this,
-                        string.Format("Argument '{0}' is invalid. Must be a valid {1}.", comArgs.Arguments[i].Name,
-                            comArgs.Arguments[i].Rule.GetError()));
-                    return true;
-                }
+                if (CheckArgumentValidation(comArgs, inputArgs, i)) return true;
+
                 //Set the value from the input argument if no errors were detected
                 returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
 
@@ -296,6 +324,41 @@ namespace Pyratron.Frameworks.Commands.Parser
                     return ParseArguments(true, commandText, command, comArgs.Arguments[i], inputArgs, returnArgs);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Checks the validation of arguments at the specified index.
+        /// </summary>
+        private bool CheckArgumentValidation(IArguable comArgs, List<string> inputArgs, int index)
+        {
+            if (!string.IsNullOrEmpty(inputArgs[index]) && !comArgs.Arguments[index].IsValid(inputArgs[index]))
+            {
+                OnParseError(this,
+                    string.Format("Argument '{0}' is invalid. Must be a valid {1}.", comArgs.Arguments[index].Name,
+                        comArgs.Arguments[index].Rule.GetError()));
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// If the arguments are longer than they should be, merge them into the last one.
+        /// This way a user does not need quotes for a chat message for example.
+        /// </summary>
+        private static void MergeLastArguments(bool recursive, Command command, IArguable comArgs, List<string> inputArgs, int i)
+        {
+            if ((i > 0 || i == comArgs.Arguments.Count - 1) && inputArgs.Count > command.Arguments.Count)
+                if (comArgs.Arguments.Count >= 1 &&
+                    ((!recursive && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || recursive))
+                {
+                    var sb = new StringBuilder();
+                    for (var j = command.Arguments.Count + (recursive && comArgs.Arguments.Count > 1 ? 1 : 0);
+                        j < inputArgs.Count;
+                        j++)
+                        sb.Append(' ').Append(inputArgs[j]);
+                    inputArgs[command.Arguments.Count - (recursive && comArgs.Arguments.Count > 1 ? 0 : 1)] +=
+                        sb.ToString();
+                }
         }
 
         /// <summary>
