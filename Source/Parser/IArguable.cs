@@ -3,13 +3,13 @@
 namespace Pyratron.Frameworks.Commands.Parser
 {
     /// <summary>
-    /// Represents an object that has arguments/parameters
+    /// Represents an object that has multiple arguments/parameters.
     /// </summary>
     internal interface IArguable
     {
         /// <summary>
-        /// The input (Including alias and help) that are passed with the command or argument.
+        /// The arguments the object contains. Arguments may be nested inside others to create links of arguments.
         /// </summary>
-        List<Argument> Arguments { get; set; }
+        List<Argument> Arguments { get; }
     }
 }

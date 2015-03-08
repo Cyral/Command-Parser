@@ -5,17 +5,23 @@ using System.Text;
 namespace Pyratron.Frameworks.Commands.Parser
 {
     /// <summary>
-    /// Provides extension methods for arguments that can be used with the library.
+    /// Provides extension methods for arguments and commands that can be used with the library.
     /// </summary>
     public static class CommandExtensions
     {
         /// <summary>
         /// Retrieves an argument's value by it's name from an <c>Argument</c> collection or array.
         /// </summary>
+        /// <example>
+        ///     <code>
+        ///          private static void OnCommandExecuted(Argument[] args) {
+        ///          var user = args.FromName("user");
+        ///     </code>
+        /// </example>
         public static string FromName(this IEnumerable<Argument> arguments, string name)
         {
             if (arguments == null) throw new ArgumentNullException("arguments");
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name", "Argument name may not be empty");
 
             foreach (var arg in arguments)
             {
@@ -29,7 +35,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates an readable argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
+        /// Generates an readable argument string for the given arguments. (Ex: "&lt;player&gt; &lt;item&gt; [amount]")
         /// </summary>
         public static string GenerateArgumentString(this List<Argument> arguments)
         {
@@ -41,7 +47,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates an readable argument string for the given arguments. (Ex: "%lt;player&gt; &lt;item&gt; [amount]")
+        /// Generates an readable argument string for the given arguments. (Ex: "&lt;player&gt; &lt;item&gt; [amount]")
+        /// (Different than <see cref="GenerateArgumentString" />, which is for public use and creates a <c>StringBuilder</c>)
         /// </summary>
         private static void WriteArguments(this List<Argument> arguments, StringBuilder sb)
         {
@@ -50,33 +57,35 @@ namespace Pyratron.Frameworks.Commands.Parser
             for (var i = 0; i < arguments.Count; i++)
             {
                 var arg = arguments[i];
-                //Write bracket, name, and closing bracket for each argument
+
+                //Write bracket, name, and closing bracket for each argument.
                 sb.Append(arg.Optional ? '[' : '<');
-                if (arg.Enum) //Print possible values if "enum"
+                if (arg.Enum) //Print possible values if "enum".
                 {
                     for (var j = 0; j < arg.Arguments.Count; j++)
                     {
                         var possibility = arg.Arguments[j];
                         sb.Append(possibility.Name);
-                        if (arg.Arguments[j].Arguments.Count >= 1) //Child arguments (Print each possible value)
+                        if (arg.Arguments[j].Arguments.Count >= 1) //Child arguments (Print each possible value).
                         {
                             sb.Append(' ');
                             WriteArguments(arg.Arguments[j].Arguments, sb);
                         }
-                        if (j < arg.Arguments.Count - 1 && arg.Arguments.Count > 1) //Print "or"
+                        if (j < arg.Arguments.Count - 1 && arg.Arguments.Count > 1) //Print "or".
                             sb.Append('|');
                     }
                 }
                 else
                 {
                     sb.Append(arg.Name.ToLower());
-                    if (arg.Arguments.Count >= 1) //Child arguments
+                    if (arg.Arguments.Count >= 1) //Child arguments.
                     {
                         sb.Append(' ');
                         WriteArguments(arg.Arguments, sb);
                     }
                 }
 
+                //Closing tag
                 sb.Append(arg.Optional ? "]" : ">");
                 if (i != arguments.Count - 1)
                     sb.Append(' ');

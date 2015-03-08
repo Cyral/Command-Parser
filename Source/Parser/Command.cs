@@ -12,7 +12,7 @@ namespace Pyratron.Frameworks.Commands.Parser
     {
         /// <summary>
         /// The permission level needed to invoke the command.
-        /// Useful for disabling commands for different "ranks".
+        /// Primarily used for creating "ranks" for different users.
         /// </summary>
         public int AccessLevel { get; set; }
 
@@ -22,8 +22,12 @@ namespace Pyratron.Frameworks.Commands.Parser
         public Action<Argument[]> Action { get; set; }
 
         /// <summary>
-        /// The strings that will call the command.
+        /// The strings that will call the command. The first alias is known as the default alias.
+        /// Aliases should not contain the command prefix.
         /// </summary>
+        /// <example>
+        /// The alias "help" will cause the command to be called when the prefix, plus "help" is typed (Ex: /help)
+        /// </example>
         public List<string> Aliases { get; set; }
 
         /// <summary>
@@ -79,9 +83,6 @@ namespace Pyratron.Frameworks.Commands.Parser
 
         #region IArguable Members
 
-        /// <summary>
-        /// The input (Including alias and help) that are passed with the command.
-        /// </summary>
         public List<Argument> Arguments { get; set; }
 
         #endregion
@@ -125,7 +126,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </example>
         /// <param name="alias">
         /// Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real
-        /// input is "ban", make sure we use the alias)
+        /// input is "ban", make sure we use the alias in the message.)
         /// </param>
         public string ShowHelp(string alias = "")
         {
@@ -139,11 +140,11 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Generates help text defining the usage of a comArgs
+        /// Generates help text defining the usage of the command and its arguments.
         /// </summary>
         /// <param name="alias">
         /// Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real
-        /// input is "ban", make sure we use the alias)
+        /// input is "ban", make sure we use the alias in the message.)
         /// </param>
         public string GenerateUsage(string alias = "")
         {
@@ -169,7 +170,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Adds a command alias that will call the action.
+        /// Adds a command alias that will call the command's action.
         /// </summary>
         /// <param name="alias">Alias that will call the action (Ex: "help", "exit")</param>
         public Command AddAlias(string alias)
@@ -235,7 +236,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="arguments">The parsed input</param>
         public Command Execute(Argument[] arguments)
         {
-            if (arguments == null) throw new ArgumentNullException("arguments");
+            if (Action == null) throw new InvalidOperationException("The command's action must be defined before calling it.");
 
             if (string.IsNullOrEmpty(CanExecute(this)))
                 Action(arguments);

@@ -35,7 +35,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         public bool Enum { get; set; }
 
         /// <summary>
-        /// The name to refer to this argument in documentation/help.
+        /// The name to refer to this argument in documentation and/or help.
         /// </summary>
         public string Name { get; set; }
 
@@ -51,11 +51,12 @@ namespace Pyratron.Frameworks.Commands.Parser
 
         /// <summary>
         /// The value of this argument parsed from the command.
+        /// Threading may cause issues if two commands of the same instance are parsed at once.
         /// </summary>
         internal string Value
         {
             get { return value; }
-            set
+            private set
             {
                 if (!IsValid(value))
                     throw new ArgumentException("Value does not fulfill the validation rule.");
@@ -71,7 +72,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// Constructs a new command argument.
         /// </summary>
-        /// <param name="name">The name to refer to this argument in documentation/help.</param>
+        /// <param name="name">The name to refer to this argument in documentation and/or help.</param>
         /// <param name="optional">Indicates if this parameter is optional.</param>
         public Argument(string name, bool optional = false)
         {
@@ -85,7 +86,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         #region IArguable Members
 
         /// <summary>
-        /// Nested arguments that are contained within this argument
+        /// Nested arguments that are contained within this argument.
         /// Example: [foo [bar]]
         /// </summary>
         public List<Argument> Arguments { get; set; }
@@ -250,28 +251,57 @@ namespace Pyratron.Frameworks.Commands.Parser
             return this;
         }
 
-        #region Nested type: Class
+        #region Nested Type: ValidationRule
 
         /// <summary>
         /// Represents a rule to validate an argument value on.
         /// </summary>
         public class ValidationRule
         {
-            public static readonly ValidationRule Integer, Double, Alphanumerical, Email, IP;
+            /// <summary>
+            /// A rule that only allows <c>Int32</c> (whole) numbers.
+            /// </summary>
+            public static readonly ValidationRule Integer;
+
+            /// <summary>
+            /// A rule that only allows <c>Double</c> numbers.
+            /// </summary>
+            public static readonly ValidationRule Double;
+
+            /// <summary>
+            /// A rule that only allows valid emails.
+            /// </summary>
+            /// <see cref="EmailRegex"/>
+            public static readonly ValidationRule Email;
+
+            /// <summary>
+            /// A rule that only allows alphanumerical values.
+            /// </summary>
+            /// <see cref="AlphaNumericRegex"/>
+            public static readonly ValidationRule AlphaNumerical;
+
+            /// <summary>
+            /// A rule that only allows valid IP addresses. (Using <c>IPAddress.TryParse</c>)
+            /// </summary>
+            public static readonly ValidationRule IP;
+
+            /// <summary>
+            /// Rule that always returns true. This is the default rule for arguments.
+            /// </summary>
             internal static readonly ValidationRule AlwaysTrue;
 
             private static readonly Regex
-                AlphaNumericReg = new Regex("^[a-zA-Z][a-zA-Z0-9]*$"),
+                AlphaNumericRegex = new Regex("^[a-zA-Z][a-zA-Z0-9]*$"),
                 EmailRegex = new Regex("^[A-Z0-9._%+-]+@[A-Z]{1}[A-Z0-9.-]+.[A-Z]{2,26}$", RegexOptions.IgnoreCase);
 
             /// <summary>
             /// A user friendly name that will be displayed in an error.
-            /// Example: "Must be a valid ____"
+            /// Example: "Must be a valid 'IP Address'" where "IP Address" is the name.
             /// </summary>
             public string Name { get; set; }
 
             /// <summary>
-            /// A function that returns true if the string passed passes the rule.
+            /// A predicate that returns true if the string passed passes the rule.
             /// </summary>
             public Predicate<string> Validate { get; set; }
 
@@ -294,7 +324,7 @@ namespace Pyratron.Frameworks.Commands.Parser
 
                 Email = new ValidationRule("Email", s => EmailRegex.IsMatch(s));
 
-                Alphanumerical = new ValidationRule("Alphanumeric string", s => AlphaNumericReg.IsMatch(s));
+                AlphaNumerical = new ValidationRule("Alphanumeric string", s => AlphaNumericRegex.IsMatch(s));
 
                 IP = new ValidationRule("IP Address", delegate(string s)
                 {
@@ -305,9 +335,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             }
 
             /// <summary>
-            /// Creates a new validation rule
+            /// Creates a new validation rule.
             /// </summary>
-            /// <param name="friendlyName"> A user friendly name that will be displayed in an error. "Must be a valid ____"</param>
+            /// <param name="friendlyName">A user friendly name that will be displayed in an error. Ex: "Must be a valid ____"</param>
             /// <param name="validate">A function that returns true if the string passed passes the rule.</param>
             public ValidationRule(string friendlyName, Predicate<string> validate)
             {
@@ -316,9 +346,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             }
 
             /// <summary>
-            /// Creates a new validation rule
+            /// Creates a new validation rule.
             /// </summary>
-            /// <param name="friendlyName"> A user friendly name that will be displayed in an error. "Must be a valid ____"</param>
+            /// <param name="friendlyName">A user friendly name that will be displayed in an error. Ex: "Must be a valid ____"</param>
             /// <param name="validate">A function that returns true if the string passed passes the rule.</param>
             public ValidationRule Create(string friendlyName, Predicate<string> validate)
             {
