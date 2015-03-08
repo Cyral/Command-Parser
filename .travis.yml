@@ -1,2 +1,6 @@
 language: csharp
-solution: "/Source/Command Parser.sln"
+solution: "./Source/Command Parser.sln"
+install:
+  - nuget restore "./Source/Command Parser.sln"
+script:
+  - xbuild /p:Configuration=Release "./Source/Command Parser.sln"
