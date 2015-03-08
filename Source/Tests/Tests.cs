@@ -6,7 +6,7 @@ namespace Pyratron.Frameworks.Commands.Tests
     public class Tests
     {
         [TestMethod]
-        public void TestMethod1()
+        public void TestMethod()
         {
         }
     }
