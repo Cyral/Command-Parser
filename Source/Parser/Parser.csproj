@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Pyratron.Frameworks.Commands.Parser</RootNamespace>
-    <AssemblyName>Command Parser</AssemblyName>
+    <AssemblyName>Pyratron.Frameworks.Commands.Parser</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

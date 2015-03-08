@@ -2,5 +2,7 @@ language: csharp
 solution: "./Source/Command Parser.sln"
 install:
   - nuget restore "./Source/Command Parser.sln"
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release "./Source/Command Parser.sln"
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Source/Tests/bin/Release/Pyratron.Frameworks.Commands.Tests.dll
