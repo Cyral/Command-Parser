@@ -1,2 +1,2 @@
 language: csharp
-solution: /Source/Command Parser.sln
+solution: "/Source/Command Parser.sln"
