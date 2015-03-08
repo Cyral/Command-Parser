@@ -5,4 +5,5 @@ install:
   - sudo apt-get install nunit-console
 script:
   - xbuild /p:Configuration=Release "./Source/Command Parser.sln"
-  - nunit-console /Source/Tests/bin/Release/Pyratron.Frameworks.Commands.Tests.dll
+  - ls "./Source/Tests/bin/Release/"
+  - nunit-console "./Source/Tests/bin/Release/Pyratron.Frameworks.Commands.Tests.dll"
