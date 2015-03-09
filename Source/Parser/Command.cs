@@ -131,12 +131,17 @@ namespace Pyratron.Frameworks.Commands.Parser
         public string ShowHelp(string alias = "")
         {
             var sb = new StringBuilder();
-            return sb.Append(Name)
-                .Append(" - ")
-                .Append(Description)
-                .Append(" (Usage: ")
+            sb.Append(Name);
+
+            if (!string.IsNullOrEmpty(Description))
+                sb.Append(" - ")
+                    .Append(Description);
+
+            sb.Append(" (Usage: ")
                 .Append(GenerateUsage(alias))
-                .Append(')').ToString();
+                .Append(')');
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -236,7 +241,8 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <param name="arguments">The parsed input</param>
         public Command Execute(Argument[] arguments)
         {
-            if (Action == null) throw new InvalidOperationException("The command's action must be defined before calling it.");
+            if (Action == null)
+                throw new InvalidOperationException("The command's action must be defined before calling it.");
 
             if (string.IsNullOrEmpty(CanExecute(this)))
                 Action(arguments);

@@ -129,6 +129,7 @@ namespace Pyratron.Frameworks.Commands.Demo
                 //Again, a complex hierarchy that results in: godmode [player <on|off]
                 .AddArgument(Argument
                     .Create("player")
+                    .MakeOptional()
                     .SetDefault("User")
                     .AddArgument(Argument
                         .Create("status")
@@ -175,8 +176,8 @@ namespace Pyratron.Frameworks.Commands.Demo
                             .Create("itemname"))
                         .AddArgument(Argument
                             .Create("amount")
-                            .SetDefault("10") //Note use of default value
-                            .MakeOptional()))
+                            .MakeOptional()
+                            .SetDefault("10"))) //Note use of default value
                     .SetDefault("item")));
 
             /* --------

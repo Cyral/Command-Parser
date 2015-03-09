@@ -128,9 +128,10 @@ namespace Pyratron.Frameworks.Commands.Parser
 
             //Now we are ready to go.
             //Split the string into arguments ignoring spaces between quotes.
-            var inputArgs = Regex.Matches(input, @"[\""].+?[\""]|[^ ]+")
+            var inputArgs = Regex
+                .Matches(input, @"(?<match>\w+)|\""(?<match>[\w\s]*)""")
                 .Cast<Match>()
-                .Select(m => m.Value)
+                .Select(m => m.Groups["match"].Value)
                 .ToList();
 
             //Search the commands for a matching command.
@@ -333,7 +334,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 returnArgs.Add(comArgs.Arguments[i].SetValue(inputArgs[i]));
 
                 //If the next child argument is an "enum" (Only certain values allowed), then remove the current input argument.
-                if (comArgs.Arguments[i].Arguments.Count > 0 && comArgs.Arguments[i].Arguments[0].Enum)
+                if ((comArgs.Arguments[i].Optional && comArgs.Arguments[i].Arguments.Count > 0 && !comArgs.Arguments[i].Arguments[0].Enum) || (comArgs.Arguments[i].Arguments.Count > 0 && comArgs.Arguments[i].Arguments[0].Enum))
                     inputArgs.RemoveAt(0);
 
                 //If the argument has nested arguments, parse them recursively.
@@ -367,7 +368,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             if ((i > 0 || i == comArgs.Arguments.Count - 1) && inputArgs.Count > command.Arguments.Count)
             {
-                if (comArgs.Arguments.Count >= 1 &&
+                if (comArgs.Arguments.Count >= 1 + comArgs.Arguments[comArgs.Arguments.Count - 1].Arguments.Count &&
                     ((!recursive && !comArgs.Arguments[comArgs.Arguments.Count - 1].Enum) || recursive))
                 {
                     var sb = new StringBuilder();
@@ -397,6 +398,11 @@ namespace Pyratron.Frameworks.Commands.Parser
                 sb.Append("'");
                 sb.Append(arg.Name);
                 sb.Append("'");
+
+                //Indicate default argument
+                if (arg.Name == argument.Default)
+                    sb.Append(" (default)");
+
                 //Add comma and "or" if needed
                 if (argument.Arguments.Count > 1)
                 {
@@ -404,6 +410,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                         sb.Append(", or ");
                     else if (i < argument.Arguments.Count - 1)
                         sb.Append(", ");
+
                 }
             }
 

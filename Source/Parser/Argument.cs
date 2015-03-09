@@ -22,6 +22,8 @@ namespace Pyratron.Frameworks.Commands.Parser
             {
                 if (!IsValid(value))
                     throw new ArgumentException("Value does not fulfill the validation rule.");
+                if (!Optional && !Enum)
+                    throw new InvalidOperationException("Argument must be optional or enum to set a default value. Set default after marking argument as optional or adding types.");
 
                 defaultValue = value;
                 if (string.IsNullOrEmpty(this.value)) //If value is empty, set to default value
@@ -162,7 +164,7 @@ namespace Pyratron.Frameworks.Commands.Parser
 
         /// <summary>
         /// Sets the default value for an optional parameter when no value is specified.
-        /// Do not use this method when creating arguments.
+        /// Only works on optional commands. (As required commands would not need a default value)
         /// </summary>
         public Argument SetDefault(object value)
         {
@@ -247,7 +249,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// </summary>
         internal Argument ResetValue()
         {
-            value = string.Empty;
+            Value = string.Empty;
             return this;
         }
 
