@@ -39,6 +39,7 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .AddAlias("ban") //Aliases.
                 .AddAlias("banuser")
                 .SetDescription("Bans a user from the server.") //Description.
+                //Action to be executed when command is ran with correct parameters. (Of course, can be method, lamba, delegate, etc)
                 .SetAction(OnBanExecuted)
                 //Precondition to be checked before executing the command.
                 .SetExecutePredicate(delegate
@@ -48,7 +49,6 @@ namespace Pyratron.Frameworks.Commands.Demo
                     //In reality this logic would be more complex but this is just an example.
                     return string.Empty;
                 })
-                //Action to be executed when command is ran with correct parameters. (Of course, can be method, lamba, delegate, etc)
                 .AddArgument(Argument //Add an argument.
                     .Create("User")));
 
