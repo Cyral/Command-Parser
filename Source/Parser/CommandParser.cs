@@ -129,7 +129,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             //Now we are ready to go.
             //Split the string into arguments ignoring spaces between quotes.
             var inputArgs = Regex
-                .Matches(input, @"(?<match>\w+)|\""(?<match>[\w\s]*)""")
+                .Matches(input, "(?<match>[^\\s\"]+)|(?<match>\"[^\"]*\")")
                 .Cast<Match>()
                 .Select(m => m.Groups["match"].Value)
                 .ToList();
