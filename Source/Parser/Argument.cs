@@ -60,9 +60,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             get { return value; }
             private set
             {
+                this.value = value;
                 if (string.IsNullOrEmpty(this.value)) //If value is empty, set to default value
                     this.value = Default;
-                this.value = value;
             }
         }
 
