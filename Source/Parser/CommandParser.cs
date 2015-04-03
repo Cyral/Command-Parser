@@ -19,6 +19,11 @@ namespace Pyratron.Frameworks.Commands.Parser
     {
         #region Delegates
 
+        /// <summary>
+        /// Contains details on errors encountered during parsing, such as incorrect arguments, failed validation, etc.
+        /// </summary>
+        /// <param name="sender">The parser object that delivered the error.</param>
+        /// <param name="error">An error message describing the error. This should be outputted as a log, chat message, etc.</param>
         public delegate void ParseErrorHandler(object sender, string error);
 
         #endregion
@@ -29,7 +34,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         public List<Command> Commands { get; set; }
 
         /// <summary>
-        /// Fired when an error occurs during parsing. Details on the error are returned.
+        /// Fired when an error occurs during parsing. Details on the error are returned such as incorrect arguments, failed validation, etc.
         /// </summary>
         public ParseErrorHandler ParseError { get; private set; }
 
@@ -108,11 +113,16 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// command.
         /// Use <c>Arguments[].FromName(...)</c> to get the values of the parsed arguments in the command action.
         /// </remarks>
-        /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission</param>
-        public void Parse(string input, int accessLevel = 0)
+        /// <param name="input">A string inputted by a user. If the string does not start with the parser prefix, it will return false, otherwise it will parse the command.</param>
+        /// <param name="accessLevel">An optional level to limit executing commands if the user doesn't have permission.</param>
+        /// <returns>
+        /// True if the input is non-empty and starts with the <c>Prefix</c>.
+        /// If the input does not start with a prefix, it returns false so the message can be processed further. (As a chat message, for example)
+        /// </returns>
+        public bool Parse(string input, int accessLevel = 0)
         {
             if (string.IsNullOrEmpty(input))
-                return;
+                return false;
 
             //Remove the prefix from the input and trim it just in case.
             input = input.Trim();
@@ -120,11 +130,11 @@ namespace Pyratron.Frameworks.Commands.Parser
             {
                 var index = input.IndexOf(Prefix, StringComparison.OrdinalIgnoreCase);
                 if (index == -1)
-                    return;
+                    return false;
                 input = input.Remove(index, Prefix.Length);
             }
             if (string.IsNullOrEmpty(input))
-                return;
+                return false;
 
             //Now we are ready to go.
             //Split the string into arguments ignoring spaces between quotes.
@@ -135,8 +145,9 @@ namespace Pyratron.Frameworks.Commands.Parser
                 .ToList();
 
             //Search the commands for a matching command.
-            var commands = Commands.Where(cmd => cmd.Aliases.Any(alias => alias.Equals(inputArgs[0])));
-            if (commands.Count() == 0) //If no commands found found.
+            var commands = Commands.Where(cmd => cmd.Aliases.Any(alias => alias.Equals(inputArgs[0]))).ToList();
+
+            if (commands.Count == 0) //If no commands found found.
                 NoCommandsFound(inputArgs);
             else
             {
@@ -148,7 +159,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                     OnParseError(this,
                         string.Format("Command '{0}' requires permission level {1}. (Currently only {2})", command.Name,
                             command.AccessLevel, accessLevel));
-                    return;
+                    return true;
                 }
 
                 //Verify the command can be run.
@@ -156,7 +167,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 if (!string.IsNullOrEmpty(canExecute))
                 {
                     OnParseError(this, canExecute);
-                    return;
+                    return true;
                 }
 
                 var returnArgs = new List<Argument>();
@@ -170,6 +181,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 //Return argument values back to default.
                 ResetArgs(command);
             }
+            return true;
         }
 
         /// <summary>
@@ -178,6 +190,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         private void NoCommandsFound(List<string> inputArgs)
         {
             OnParseError(this, string.Format("Command '{0}' not found.", inputArgs[0]));
+
             //Find related commands (Did you mean?)
             var related = FindRelatedCommands(inputArgs[0]);
 

@@ -20,6 +20,7 @@ namespace Pyratron.Frameworks.Commands.Parser
             get { return defaultValue; }
             private set
             {
+                //Run a few tests
                 if (!IsValid(value))
                     throw new ArgumentException("Value does not fulfill the validation rule.");
                 if (!Optional && !Enum)
@@ -34,6 +35,14 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// Indicates if the values should act as an enum, where each possible value must be added through <c>AddOption(..)</c>
         /// </summary>
+        /// <remarks>
+        /// Use <c>AddOption</c> to add "options" to this argument.
+        /// </remarks>
+        /// <example>
+        /// For example, an argument that is set as an "enum" could have a few possible values added through <c>AddOption</c>.
+        /// You could add options such as "yes" and "no", which will only allow those two options to be used.
+        /// They will also be shown as choices in command help.
+        /// </example>
         public bool Enum { get; set; }
 
         /// <summary>
@@ -44,17 +53,30 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// Indicates if this parameter is optional. All arguments are required by default.
         /// </summary>
+        /// <remarks>
+        /// Use <c>Default</c> to set the default value if an optional parameter is not defined.
+        /// </remarks>
         public bool Optional { get; set; }
 
         /// <summary>
         /// A validation rule that checks if the argument is valid.
-        /// </summary>
+        /// <example>
+        /// <c>Argument.Create("email").SetValidator(Argument.ValidationRule.Email))</c>
+        /// This will cause the email argument to only allow valid emails.
+        /// Custom validators can also be created.
+        /// </example>
+        /// <remarks>
+        /// ValidationRules are run when the command is parsed, while <c>CanExecute</c> on the <c>Command</c> object verifies a command can run.
+        /// </remarks>
         public ValidationRule Rule { get; set; }
 
         /// <summary>
         /// The value of this argument parsed from the command.
         /// Threading may cause issues if two commands of the same instance are parsed at once.
         /// </summary>
+        /// <remarks>
+        /// The parser will parse a command and set the value of on the actual instance of the argument.
+        /// </remarks>
         internal string Value
         {
             get { return value; }
@@ -178,13 +200,23 @@ namespace Pyratron.Frameworks.Commands.Parser
         {
             if (value == null) throw new ArgumentNullException("value");
 
-            Enum = true;
+            Enum = true; //An "enum" argument signifies that it had a limited set of values that can be passed.
             AddArgument(value);
             return this;
         }
 
         /// <summary>
+        /// Sets the validation rule that is used for this argument.
+        /// Validation rules verify the input is valid.
         /// </summary>
+        /// <example>
+        /// <c>Argument.Create("email").SetValidator(Argument.ValidationRule.Email))</c>
+        /// This will cause the email argument to only allow valid emails.
+        /// Custom validators can also be created.
+        /// </example>
+        /// <remarks>
+        /// ValidationRules are run when the command is parsed, while <c>CanExecute</c> on the <c>Command</c> object verifies a command can run.
+        /// </remarks>
         /// <param name="rule">Represents a rule to validate an argument value on.</param>
         public Argument SetValidator(ValidationRule rule)
         {
@@ -198,6 +230,14 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Restricts the possible values to a list of specific values, acting as if it were an enum.
         /// Each option can have children arguments that define specific behavior.
         /// </summary>
+        /// <remarks>
+        /// Use <c>AddOption</c> to add "options" to this argument.
+        /// </remarks>
+        /// <example>
+        /// For example, an argument that is set as an "enum" could have a few possible values added through <c>AddOption</c>.
+        /// You could add options such as "yes" and "no", which will only allow those two options to be used.
+        /// They will also be shown as choices in command help.
+        /// </example>
         public Argument MakeEnum()
         {
             Enum = true;
@@ -255,6 +295,14 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// <summary>
         /// Represents a rule to validate an argument value on.
         /// </summary>
+        /// <example>
+        /// <c>Argument.Create("email").SetValidator(Argument.ValidationRule.Email))</c>
+        /// This will cause the email argument to only allow valid emails.
+        /// Custom validators can also be created.
+        /// </example>
+        /// <remarks>
+        /// ValidationRules are run when the command is parsed, while <c>CanExecute</c> on the <c>Command</c> object verifies a command can run.
+        /// </remarks>
         public class ValidationRule
         {
             /// <summary>

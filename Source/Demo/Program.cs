@@ -22,7 +22,7 @@ namespace Pyratron.Frameworks.Commands.Demo
             Console.WriteLine(
                 "Welcome to the Pyratron Command Parser Framework Demo\nProgram.cs in the Demo project. contains a short tutorial and many examples.\nType 'list' for commands.\n");
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("Additional Information: https://github.com/Pyratron/Command-Parser");
+            Console.WriteLine("Additional Information: https://www.pyratron.com/projects/command-parser");
             Console.ForegroundColor = ConsoleColor.Gray;
 
             /* --------
@@ -202,7 +202,7 @@ namespace Pyratron.Frameworks.Commands.Demo
 
                 //Read input and parse command
                 var input = Console.ReadLine();
-                Parser.Parse(input, 10);
+                Parser.Parse(input);
             }
         }
 

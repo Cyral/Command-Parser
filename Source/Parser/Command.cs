@@ -121,7 +121,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Creates a help string giving information on the command.
         /// </summary>
         /// <example>
-        /// Example:
+        /// Example Result:
         /// Ban - Bans a user (Usage: ban &lt;user&gt;)
         /// </example>
         /// <param name="alias">
@@ -131,12 +131,15 @@ namespace Pyratron.Frameworks.Commands.Parser
         public string ShowHelp(string alias = "")
         {
             var sb = new StringBuilder();
+            //Start off with the name
             sb.Append(Name);
 
+            //Then description, if defined.
             if (!string.IsNullOrEmpty(Description))
-                sb.Append(" - ")
+                sb.Append(": ")
                     .Append(Description);
 
+            //Add a sample on how to use the command
             sb.Append(" (Usage: ")
                 .Append(GenerateUsage(alias))
                 .Append(')');
@@ -154,12 +157,14 @@ namespace Pyratron.Frameworks.Commands.Parser
         public string GenerateUsage(string alias = "")
         {
             var sb = new StringBuilder();
-            if (Aliases.Count <= 0) return string.Empty;
-            return
-                sb.Append(string.IsNullOrEmpty(alias) ? Aliases[0] : alias)
-                    .Append(' ')
-                    .Append(Arguments.GenerateArgumentString())
-                    .ToString();
+            if (Aliases.Count == 0) return string.Empty; //If no aliases, a usage cannot be determined
+            if (Arguments.Count == 0) return Aliases[0]; //If no arguments, simply return the command name
+
+            //Create usage string with main alias and arguments
+            return sb.Append(string.IsNullOrEmpty(alias) ? Aliases[0] : alias)
+                .Append(' ')
+                .Append(Arguments.GenerateArgumentString())
+                .ToString();
         }
 
         /// <summary>
@@ -245,6 +250,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 throw new InvalidOperationException("The command's action must be defined before calling it.");
 
             if (string.IsNullOrEmpty(CanExecute(this)))
+                //Run the pre-condition, if it passes (returns no error), run the action
                 Action(arguments);
             return this;
         }
