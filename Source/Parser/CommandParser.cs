@@ -306,10 +306,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                     var passed =
                         comArgs.Arguments[i].Arguments.Any(
                             arg => string.Equals(arg.Name, inputArgs[i], StringComparison.OrdinalIgnoreCase));
-                    //If it is not, but there is a default value, use the default value.
-                    if (!passed && !string.IsNullOrEmpty(comArgs.Arguments[i].Default))
-                        inputArgs.Insert(i, comArgs.Arguments[i].Default);
-                    else if (!passed) //If it was not found, alert the user, unless it is optional.
+                    if (!passed) //If it was not found, alert the user, unless it is optional.
                     {
                         if (comArgs.Arguments[i].Optional)
                         {
