@@ -1,8 +1,10 @@
 package com.pyratron.frameworks.commands.demo;
 
-import com.pyratron.frameworks.commands.parser.*;
+import com.pyratron.frameworks.commands.parser.Argument;
+import com.pyratron.frameworks.commands.parser.Command;
+import com.pyratron.frameworks.commands.parser.CommandParser;
+import com.pyratron.frameworks.commands.parser.ValidationRule;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 

@@ -4,11 +4,11 @@ import java.util.function.Predicate;
 
 /**
  * Represents addCommand rule to validate an argument value on.
- * <p>
+ *
  * <pre>Argument.create("email").SetValidator(Argument.ValidationRule.Email))</pre>
  * This will cause the email argument to only allow valid emails.
  * Custom validators can also be created.
- * <p>
+ *
  * ValidationRules are run when the command is parsed, while <pre>CanExecute</pre> on the <pre>Command</pre> object verifies addCommand command can run.
  */
 public class ValidationRule {

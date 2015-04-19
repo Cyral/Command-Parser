@@ -122,12 +122,12 @@ public class Argument implements IArguable {
     /**
      * Sets the validation rule that is used for this argument.
      * Validation rules verify the input is valid.
-     * <p>
+     *
      * Example:
      * Argument.create("email").setValidator(Argument.ValidationRule.Email))
      * This will cause the email argument to only allow valid emails.
      * Custom validators can also be created.
-     * <p>
+     *
      * ValidationRules are run when the command is parsed, while <pre>CanExecute</pre> on the <pre>Command</pre> object verifies a command can run.
      *
      * @param rule Represents a rule to validate an argument value on.
@@ -144,7 +144,7 @@ public class Argument implements IArguable {
      * Restricts the possible values to a list of specific values, acting as if it were an enum.
      * Each option can have children arguments that define specific behavior.
      * Use AddOption to add "options" to this argument.
-     * <p>
+     *
      * For example, an argument that is set as an "enum" could have a few possible values added through <c>AddOption</c>.
      * You could add options such as "yes" and "no", which will only allow those two options to be used.
      * They will also be shown as choices in command help.

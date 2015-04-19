@@ -1,19 +1,16 @@
 package com.pyratron.frameworks.commands.parser;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * Handles and parses commands and their arguments.
- * <p>
  * create a new parser with:
- * Parser = CommandParser.createNew().usePrefix("/").onError(onParseError);
+ * parser = CommandParser.createNew().usePrefix("").onError(message -> onParseError(message));
  * Send commands to the parser with:
  * Parser.Parse(input);
  */
@@ -162,7 +159,7 @@ public class CommandParser {
                 return true;
             }
 
-            ArrayList<Argument> returnArgs = new java.util.ArrayList<>();
+            ArrayList<Argument> returnArgs = new ArrayList<>();
 
             //Validate each argument.
             String alias = inputArgs.get(0).toLowerCase(); //Preserve the alias typed in.
