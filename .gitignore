@@ -167,7 +167,7 @@ hs_err_pid*
 
 # IntelliJ
 */out/
-*/META-INF/
+*/META-INF
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
