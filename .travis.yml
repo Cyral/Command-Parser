@@ -1,8 +1,8 @@
 language: csharp
-solution: "./Source/Command Parser.sln"
+solution: "./DotNET/Command Parser.sln"
 install:
-  - nuget restore "./Source/Command Parser.sln"
+  - nuget restore "./DotNET/Command Parser.sln"
   - sudo apt-get install nunit-console
 script:
-  - xbuild /p:Configuration=Release "./Source/Command Parser.sln"
-  - nunit-console "./Source/Tests/bin/Release/Pyratron.Frameworks.Commands.Tests.dll"
+  - xbuild /p:Configuration=Release "./DotNET/Command Parser.sln"
+  - nunit-console "./DotNET/Tests/bin/Release/Pyratron.Frameworks.Commands.Tests.dll"
