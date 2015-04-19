@@ -11,5 +11,8 @@ The library is available for **.NET** (C#, VB, and C++/CLI) and **Java**, and wi
 ##Documentation & Tutorials
 Documentation and tutorials are available on the [Pyratron website](https://www.pyratron.com/projects/command-parser).
 
+ - [C# Tutorial](https://www.pyratron.com/projects/command-parser/dotnet)
+ - [Java Tutorial](https://www.pyratron.com/projects/command-parser/java)
+
 ###Example Application:
 ![Example](https://www.pyratron.com/images/pages/command-parser/command-parser.png)
