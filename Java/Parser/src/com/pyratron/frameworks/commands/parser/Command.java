@@ -82,7 +82,7 @@ public class Command implements IArguable {
     /**
      * Creates a help string giving information on the command.
      * Example Result:
-     * "Ban - Bans a user (Usage: ban <user>)"
+     * <pre>"Ban - Bans a user (Usage: ban &lt;user&gt;)"</pre>
      */
     public String showHelp() {
         return showHelp("");
@@ -91,7 +91,7 @@ public class Command implements IArguable {
     /**
      * Creates a help string giving information on the command.
      * Example Result:
-     * "Ban - Bans a user (Usage: ban <user>)"
+     * <pre>"Ban - Bans a user (Usage: ban &lt;user&gt;)"</pre>
      *
      * @param alias Custom alias to use in the message. (Example, if user inputs "banuser" as an alias, but the real input is "ban", make sure we use the alias in the message.)
      */
@@ -196,7 +196,7 @@ public class Command implements IArguable {
     /**
      * Sets an action to be ran when the command is executed.
      *
-     * @param action Action to be ran, which takes a <c>Argument</c> array parameter representing the passed input.
+     * @param action Action to be ran, which takes a <pre>Argument</pre> array parameter representing the passed input.
      */
     public Command setAction(Consumer<ArrayList<Argument>> action) {
         if (action == null) throw new IllegalArgumentException("action");

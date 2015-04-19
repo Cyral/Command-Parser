@@ -145,7 +145,7 @@ public class Argument implements IArguable {
      * Each option can have children arguments that define specific behavior.
      * Use AddOption to add "options" to this argument.
      *
-     * For example, an argument that is set as an "enum" could have a few possible values added through <c>AddOption</c>.
+     * For example, an argument that is set as an "enum" could have a few possible values added through <pre>AddOption</pre>.
      * You could add options such as "yes" and "no", which will only allow those two options to be used.
      * They will also be shown as choices in command help.
      */
@@ -218,7 +218,7 @@ public class Argument implements IArguable {
     }
 
     /**
-     * Generates an readable argument string for the given arguments. (Ex: "<player> <item> [amount]")
+     * Generates an readable argument string for the given arguments. (Ex: "&lt;player&gt; &lt;item&gt; [amount]")
      */
     public static String generateArgumentString(ArrayList<Argument> arguments) {
         if (arguments == null)
@@ -237,7 +237,7 @@ public class Argument implements IArguable {
     }
 
     /**
-     * Generates an readable argument string for the given arguments. (Ex: "<player> <item> [amount]")
+     * Generates an readable argument string for the given arguments. (Ex: "&lt;player&gt; &lt;item&gt; [amount]")
      * (Different than generateArgumentString which is for public use and creates a StringBuilder)
      */
     private static void writeArguments(ArrayList<Argument> arguments, StringBuilder sb) {

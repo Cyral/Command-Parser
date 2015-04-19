@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: com.pyratron.frameworks.commands.demo.Program
+
