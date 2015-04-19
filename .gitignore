@@ -179,6 +179,10 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
+# Nuget
+*/packages/
+*/packages/repositories.config
+
 ### General Ignore:
 
 # Windows image file caches
