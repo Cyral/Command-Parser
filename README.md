@@ -6,7 +6,7 @@ A powerful but simple command parsing library for use in games and other applica
 
 The [demo application](https://github.com/Pyratron/Command-Parser/archive/master.zip) contains a short tutorial and a variety of example commands to get you started.
 
-The library is available for **.NET** (C#, VB, and C++/CLI) and **Java**.
+The library is available for **.NET** (C#, VB, and C++/CLI) and **Java**, and will run on most major platforms.
 
 ##Documentation & Tutorials
 Documentation and tutorials are available on the [Pyratron website](https://www.pyratron.com/projects/command-parser).
