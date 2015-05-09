@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Pyratron.Frameworks.Commands.Parser
@@ -23,15 +24,35 @@ namespace Pyratron.Frameworks.Commands.Parser
             if (arguments == null) throw new ArgumentNullException("arguments");
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name", "Argument name may not be empty");
 
-            foreach (var arg in arguments)
+            string value = FromNameRecurse(arguments, name);
+            if (!value.Equals(string.Empty))
+                return value;
+
+            throw new InvalidOperationException(string.Format("No argument of name {0} found.", name));
+        }
+
+        private static string FromNameRecurse(IEnumerable<Argument> arguments, string name)
+        {
+            //Search top level arguments first
+            var enumerable = arguments as Argument[] ?? arguments.ToArray();
+            foreach (var arg in enumerable)
             {
                 if (arg.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return arg.Value;
-                if (arg.Arguments.Count > 0) //If argument has nested args, recursively search
-                    return FromName(arg.Arguments, name);
             }
 
-            throw new InvalidOperationException(string.Format("No argument of name {0} found.", name));
+            //Recursively search children
+            foreach (var arg in enumerable)
+            {
+                if (arg.Arguments.Count > 0) //If argument has nested args, recursively search
+                {
+                    string value = FromNameRecurse(arg.Arguments, name);
+                    if (!value.Equals(string.Empty))
+                        return value;
+                }
+
+            }
+            return string.Empty;
         }
 
         /// <summary>

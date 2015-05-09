@@ -225,10 +225,16 @@ public class CommandParser {
                                     arg -> arg.getName().equalsIgnoreCase(inputArgs.get(finalIndex))).findFirst();
                     if (argument.isPresent()) {
                         inputArgs.remove(0); //Remove the type we parsed.
-                        return parseArguments(true, commandText, command, argument.get(), inputArgs, returnArgs);
+                        //Parse the value, to validate it
+                        if (parseArguments(true, commandText, command, argument.get(), inputArgs, returnArgs))
+                            return true;
+                        if (i == comArgs.getArguments().size() - 1)  //If last argument, break, as no more input is expected
+                            break;
+                        inputArgs.add(0, ""); //Insert dummy data to fill inputArgs
+                        //Now that the enum arg has been parsed, parse the remaining input, if any.
                     }
                 }
-                break;
+                continue;
             }
 
             //Check for validation rule.

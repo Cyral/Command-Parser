@@ -5,6 +5,7 @@ import com.pyratron.frameworks.commands.parser.Command;
 import com.pyratron.frameworks.commands.parser.CommandParser;
 import com.pyratron.frameworks.commands.parser.ValidationRule;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -147,6 +148,21 @@ public class Program {
                                 .setDefault("10")))
                 .setDefault("item"))); //Note use of default value.
 
+        parser.addCommand(Command.create("Start Game").addAlias("start")
+                        .setDescription("Start the game with specified options")
+                        .setAction(args -> askStartGame(args))
+                        .addArgument(Argument.create("game_title"))
+                        .addArgument(Argument.create("max_players"))
+                        .addArgument(Argument.create("max_ping"))
+                        .addArgument(Argument.create("tcp_port"))
+                        .addArgument(Argument.create("udp_port"))
+                        .addArgument(Argument.create("allynoblock")
+                                .addOption(Argument.create("noblock"))
+                                .addOption(Argument.create("block")))
+                        .addArgument(Argument.create("friendlyfire")
+                                .addOption(Argument.create("ff"))
+                                .addOption(Argument.create("no_ff"))));
+
         /* --------
          *   Tips
          * -------- */
@@ -169,6 +185,12 @@ public class Program {
             //Read input and parse command
             String input = scanner.nextLine();
             parser.parse(input);
+        }
+    }
+
+    private static void askStartGame(ArrayList<Argument> args) {
+        for (int i = 0; i < args.size(); i++) {
+            System.out.println("- " + args.get(i).getName());
         }
     }
 

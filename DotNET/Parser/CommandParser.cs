@@ -331,10 +331,16 @@ namespace Pyratron.Frameworks.Commands.Parser
                         if (argument != null)
                         {
                             inputArgs.RemoveAt(0); //Remove the type we parsed.
-                            return ParseArguments(true, commandText, command, argument, inputArgs, returnArgs);
+                            //Parse the value, to validate it
+                            if (ParseArguments(true, commandText, command, argument, inputArgs, returnArgs))
+                                return true;
+                            if (i == comArgs.Arguments.Count - 1)  //If last argument, break, as no more input is expected
+                                break;
+                            inputArgs.Insert(0, string.Empty); //Insert dummy data to fill inputArgs
+                            //Now that the enum arg has been parsed, parse the remaining input, if any.
                         }
                     }
-                    break;
+                    continue;
                 }
 
                 //Check for validation rule.

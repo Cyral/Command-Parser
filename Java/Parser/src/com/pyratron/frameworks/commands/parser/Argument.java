@@ -291,17 +291,34 @@ public class Argument implements IArguable {
         if (name.equals(""))
             throw new IllegalArgumentException("name can not be empty");
 
-        for (Argument arg : arguments) {
-            if (arg.getName().equalsIgnoreCase(name)) {
-                return arg.getValue();
-            }
-            if (arg.getArguments().size() > 0) //If argument has nested args, recursively search
-            {
-                return fromName(arg.getArguments(), name);
-            }
-        }
+        String value = fromNameRecurse(arguments, name);
+        if (!value.equals(""))
+            return value;
 
         throw new IllegalStateException(String.format("No argument of name %1$s found.", name));
+    }
+
+    private static String fromNameRecurse(Iterable<Argument> arguments, String name)
+    {
+        //Search top level arguments first
+        for (Argument arg : arguments)
+        {
+            if (arg.getName().equals(name))
+                return arg.getValue();
+        }
+
+        //Recursively search children
+        for (Argument arg : arguments)
+        {
+            if (arg.getArguments().size() > 0) //If argument has nested args, recursively search
+            {
+                String value = fromNameRecurse(arg.getArguments(), name);
+                if (!value.equals(""))
+                    return value;
+            }
+
+        }
+        return "";
     }
 
     /**
