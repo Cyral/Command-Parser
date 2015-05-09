@@ -101,7 +101,7 @@ public class Command implements IArguable {
         sb.append(name);
 
         //Then description, if defined.
-        if (description.equals(""))
+        if (!description.equals(""))
             sb.append(": ").append(description);
 
         //Add a sample on how to use the command
