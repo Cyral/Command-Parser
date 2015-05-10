@@ -63,9 +63,8 @@ public class Argument implements IArguable {
 
     /**
      * Sets the value of the argument when parsing.
-     * Do not use this method when creating arguments.
      */
-    public Argument setValue(String value) {
+    Argument setValue(String value) {
         if (!isValid(value) && !value.equals(""))
             throw new IllegalArgumentException("Value does not fulfill the validation rule.");
 
@@ -78,7 +77,6 @@ public class Argument implements IArguable {
 
     /**
      * Sets the default value for an optional parameter when no value is specified.
-     * Do not use this method when creating arguments.
      */
     public Argument setDefault(String value) {
         //Run a few tests
@@ -96,9 +94,7 @@ public class Argument implements IArguable {
 
     /**
      * Sets the default value for an optional parameter when no value is specified.
-     * Only works on optional commands. (As required commands would not need a default value)
-     *
-     * @return
+     * Only works on optional commands. (As required commands would not need a default value.
      */
     public Argument setDefault(Object value) {
         setDefault(value.toString());
@@ -109,7 +105,6 @@ public class Argument implements IArguable {
      * Adds an option to the argument. Options make the argument behave like an enum, where only certain string values are allowed.
      *
      * @param value Each option can have children arguments.
-     * @return
      */
     public Argument addOption(Argument value) {
         if (value == null) throw new IllegalArgumentException("value");

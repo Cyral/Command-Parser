@@ -47,7 +47,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                 if (arg.Arguments.Count > 0) //If argument has nested args, recursively search
                 {
                     string value = FromNameRecurse(arg.Arguments, name);
-                    if (!value.Equals(string.Empty))
+                    if (!string.IsNullOrEmpty(value))
                         return value;
                 }
 

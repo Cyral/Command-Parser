@@ -180,33 +180,12 @@ namespace Pyratron.Frameworks.Commands.Demo
                             .SetDefault("10"))) //Note use of default value
                     .SetDefault("item")));
 
-            Parser.AddCommand(Command.Create("Start Game").AddAlias("start")
-                       .SetDescription("Start the game with specified options")
-                       .SetAction(delegate(Argument[] args)
-                       {
-                           for (int i = 0; i < args.Length; i++)
-                           {
-                               Console.WriteLine("- " + args[i].Name + " - " + args.FromName(args[i].Name));
-                           }
-                       })
-                       .AddArgument(Argument.Create("game_title"))
-                       .AddArgument(Argument.Create("max_players"))
-                       .AddArgument(Argument.Create("max_ping"))
-                       .AddArgument(Argument.Create("tcp_port"))
-                       .AddArgument(Argument.Create("udp_port"))
-                       .AddArgument(Argument.Create("allynoblock")
-                               .AddOption(Argument.Create("noblock"))
-                               .AddOption(Argument.Create("block")))
-                       .AddArgument(Argument.Create("friendlyfire")
-                               .AddOption(Argument.Create("ff"))
-                               .AddOption(Argument.Create("no_ff"))));
-
             /* --------
              *   Tips
              * -------- */
 
-            //Tip: Show command help
-            Debug.WriteLine(Parser.Commands[3].ShowHelp());
+                //Tip: Show command help
+                Debug.WriteLine(Parser.Commands[3].ShowHelp());
 
             //Tip: Generate helpful command usage
             Debug.WriteLine(Parser.Commands[4].GenerateUsage());

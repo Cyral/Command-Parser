@@ -149,7 +149,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Sets the value of the argument when parsing.
         /// Do not use this method when creating arguments.
         /// </summary>
-        public Argument SetValue(string value)
+        internal Argument SetValue(string value)
         {
             if (!IsValid(value))
                 throw new ArgumentException("Value does not fulfill the validation rule.");
@@ -162,7 +162,7 @@ namespace Pyratron.Frameworks.Commands.Parser
         /// Sets the value of the argument when parsing.
         /// Do not use this method when creating arguments.
         /// </summary>
-        public Argument SetValue(object value)
+        internal Argument SetValue(object value)
         {
             SetValue(value.ToString());
             return this;
@@ -170,7 +170,6 @@ namespace Pyratron.Frameworks.Commands.Parser
 
         /// <summary>
         /// Sets the default value for an optional parameter when no value is specified.
-        /// Do not use this method when creating arguments.
         /// </summary>
         public Argument SetDefault(string value)
         {

@@ -148,21 +148,6 @@ public class Program {
                                 .setDefault("10")))
                 .setDefault("item"))); //Note use of default value.
 
-        parser.addCommand(Command.create("Start Game").addAlias("start")
-                        .setDescription("Start the game with specified options")
-                        .setAction(args -> askStartGame(args))
-                        .addArgument(Argument.create("game_title"))
-                        .addArgument(Argument.create("max_players"))
-                        .addArgument(Argument.create("max_ping"))
-                        .addArgument(Argument.create("tcp_port"))
-                        .addArgument(Argument.create("udp_port"))
-                        .addArgument(Argument.create("allynoblock")
-                                .addOption(Argument.create("noblock"))
-                                .addOption(Argument.create("block")))
-                        .addArgument(Argument.create("friendlyfire")
-                                .addOption(Argument.create("ff"))
-                                .addOption(Argument.create("no_ff"))));
-
         /* --------
          *   Tips
          * -------- */
@@ -190,15 +175,13 @@ public class Program {
 
     private static void askStartGame(ArrayList<Argument> args) {
         for (int i = 0; i < args.size(); i++) {
-            System.out.println("- " + args.get(i).getName());
+            System.out.println("- " + args.get(i).getName() + " - " + Argument.fromName(args, args.get(i).getName()));
         }
     }
 
-    private static void onMailExecuted(List<Argument> args)
-    {
+    private static void onMailExecuted(List<Argument> args) {
         String type = Argument.fromName(args, "type");
-        switch (type)
-        {
+        switch (type) {
             case "read":
                 System.out.println("No new mail!");
                 break;
@@ -216,16 +199,14 @@ public class Program {
         }
     }
 
-    private static void onGiveExecuted(List<Argument> args)
-    {
+    private static void onGiveExecuted(List<Argument> args) {
         String user = Argument.fromName(args, "user");
         String item = Argument.fromName(args, "item");
         String amount = Argument.fromName(args, "amount");
         System.out.printf("User %1$s was given %2$s of %3$s" + "\r\n", user, amount, item);
     }
 
-    private static void onBanExecuted(List<Argument> args)
-    {
+    private static void onBanExecuted(List<Argument> args) {
         String user = Argument.fromName(args, "user");
         System.out.printf("User %1$s was banned!" + "\r\n", user);
         banned = true;

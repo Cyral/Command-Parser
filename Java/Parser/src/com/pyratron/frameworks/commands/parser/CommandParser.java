@@ -190,7 +190,7 @@ public class CommandParser {
                 if (comArgs.getArguments().get(i).isOptional()) //If optional, we can quit and set a default value.
                 {
                     returnArgs.add(comArgs.getArguments().get(i).setValue(""));
-                    break;
+                    continue;
                 }
                 //If not optional, show an error with the correct form.
                 if (comArgs.getArguments().get(0).isEnum()) //Show list of types if enum (instead of argument name).
@@ -207,9 +207,35 @@ public class CommandParser {
                 boolean passed = comArgs.getArguments().get(i).getArguments().stream().anyMatch(arg -> arg.getName().equalsIgnoreCase(inputArgs.get(finalIndex)));
                 if (!passed) //If it was not found, alert the user, unless it is optional.
                 {
-                    if (comArgs.getArguments().get(i).isOptional())
+                    if (comArgs.getArguments().get(i).isOptional() && comArgs.getArguments().get(i).getDefault().equals("")) {
                         if (i != comArgs.getArguments().size() - 1)
-                            break;
+                            continue;
+                    }
+                    else if (!comArgs.getArguments().get(i).getDefault().equals("") && comArgs.getArguments().get(i).getArguments().size() > 0)
+                    //For enum arguments with default values, add the default value and then parse the children.
+                    {
+                        returnArgs.add(comArgs.getArguments().get(i).setValue(""));
+                        //Find the argument that matches the default value.
+                        final int finalI = i;
+                        Optional<Argument> argument =
+                                comArgs.getArguments().get(i).getArguments().stream().filter(
+                                        arg -> arg.getName().equalsIgnoreCase(comArgs.getArguments().get(finalI).getDefault())).findFirst();
+                        if (argument.isPresent() && argument.get().getArguments().size() > 0)
+                        {
+                            if (parseArguments(true, commandText, command, argument.get(), inputArgs, returnArgs))
+                                return true;
+                            if (i == comArgs.getArguments().size() - 1)
+                                //If last argument, break, as no more input is expected
+                                break;
+                            inputArgs.add(0, ""); //Insert dummy data to fill inputArgs
+                        }
+                        else
+                        {
+                            onParseError(String.format("Argument '%1$s' not recognized. Must be %2$s", inputArgs.get(i).toLowerCase(), generateEnumArguments(comArgs.getArguments().get(i))));
+                            return true;
+                        }
+                        continue;
+                    }
                     onParseError(String.format("Argument '%1$s' not recognized. Must be %2$s", inputArgs.get(i).toLowerCase(), generateEnumArguments(comArgs.getArguments().get(i))));
                     return true;
                 }
@@ -238,9 +264,8 @@ public class CommandParser {
             }
 
             //Check for validation rule.
-            if (checkArgumentValidation(comArgs, inputArgs, i)) {
+            if (checkArgumentValidation(comArgs, inputArgs, i))
                 return true;
-            }
 
             //Set the value from the input argument if no errors were detected.
             returnArgs.add(comArgs.getArguments().get(i).setValue(inputArgs.get(i)));

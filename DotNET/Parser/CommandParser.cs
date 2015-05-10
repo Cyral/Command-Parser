@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -284,7 +285,7 @@ namespace Pyratron.Frameworks.Commands.Parser
                     if (comArgs.Arguments[i].Optional) //If optional, we can quit and set a default value.
                     {
                         returnArgs.Add(comArgs.Arguments[i].SetValue(string.Empty));
-                        break;
+                        continue;
                     }
                     //If not optional, show an error with the correct form.
                     if (comArgs.Arguments[i].Enum) //Show list of types if enum (instead of argument name).
@@ -308,10 +309,37 @@ namespace Pyratron.Frameworks.Commands.Parser
                             arg => string.Equals(arg.Name, inputArgs[i], StringComparison.OrdinalIgnoreCase));
                     if (!passed) //If it was not found, alert the user, unless it is optional.
                     {
-                        if (comArgs.Arguments[i].Optional)
+                        if (comArgs.Arguments[i].Optional && comArgs.Arguments[i].Default == string.Empty)
                         {
                             if (i != comArgs.Arguments.Count - 1)
-                                break;
+                            {    
+                                continue;
+                            }
+                        }
+                        else if (comArgs.Arguments[i].Default != string.Empty && comArgs.Arguments[i].Arguments.Count > 0) //For enum arguments with default values, add the default value and then parse the children.
+                        {
+                            returnArgs.Add(comArgs.Arguments[i].SetValue(string.Empty));
+                                //Find the argument that matches the default value.
+                                var argument =
+                                    comArgs.Arguments[i].Arguments.FirstOrDefault(
+                                        arg => string.Equals(arg.Name, comArgs.Arguments[i].Default, StringComparison.OrdinalIgnoreCase));
+                            if (argument != null && argument.Arguments.Count > 0)
+                            {
+                                    if (ParseArguments(true, commandText, command, argument, inputArgs, returnArgs))
+                                        return true;
+                                    if (i == comArgs.Arguments.Count - 1)
+                                        //If last argument, break, as no more input is expected
+                                        break;
+                                    inputArgs.Insert(0, string.Empty); //Insert dummy data to fill inputArgs
+                            }
+                            else
+                            {
+                                OnParseError(this,
+                                    string.Format("Argument '{0}' not recognized. Must be {1}", inputArgs[i].ToLower(),
+                                        GenerateEnumArguments(comArgs.Arguments[i])));
+                                return true;
+                            }
+                            continue;
                         }
                         OnParseError(this,
                             string.Format("Argument '{0}' not recognized. Must be {1}", inputArgs[i].ToLower(),
