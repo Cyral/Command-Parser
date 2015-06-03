@@ -76,7 +76,7 @@ namespace Pyratron.Frameworks.Commands.Tests
                 .Create("Test")
                 .AddAlias("test")
                 .AddArgument(Argument.Create("arg"))
-                .SetAction(delegate(Argument[] args) { result = args.FromName("arg"); }));
+                .SetAction(delegate(Argument[] args, object data) { result = args.FromName("arg"); }));
 
             parser.Parse("test " + input);
 
@@ -95,7 +95,7 @@ namespace Pyratron.Frameworks.Commands.Tests
                 .Create("Test")
                 .AddAlias("test")
                 .AddArgument(Argument.Create("arg").MakeOptional().SetDefault(10))
-                .SetAction(delegate(Argument[] arguments) { value = int.Parse(arguments.FromName("arg")); }));
+                .SetAction(delegate(Argument[] arguments, object data) { value = int.Parse(arguments.FromName("arg")); }));
 
             //Test specified value
             parser.Parse("test 20");
@@ -239,7 +239,7 @@ namespace Pyratron.Frameworks.Commands.Tests
                 .Create("Test")
                 .AddAlias("test")
                 .SetAction(
-                    delegate(Argument[] arguments)
+                    delegate(Argument[] arguments, object data)
                     {
                         arg1 = arguments.FromName("arg1");
                         arg2 = arguments.FromName("arg2");
@@ -285,10 +285,11 @@ namespace Pyratron.Frameworks.Commands.Tests
             var parser = CommandParser.CreateNew().UsePrefix(string.Empty);
 
             parser.AddCommand(Command
-               .Create("Test")
-               .AddAlias("test")
-               .SetAction(obj => ran = true)
-               .SetExecutePredicate(command => canExecute ? string.Empty : "Error"));
+                .Create("Test")
+                .AddAlias("test")
+                .SetAction(delegate { ran = true; }
+                )
+                .SetExecutePredicate(command => canExecute ? string.Empty : "Error"));
 
             //CanExecute true
             parser.Parse("test");
