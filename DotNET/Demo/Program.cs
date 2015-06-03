@@ -88,7 +88,7 @@ namespace Pyratron.Frameworks.Commands.Demo
 
             Parser.AddCommand(Command.Create("Register").AddAlias("register").SetDescription("Create an account")
                 //Note inline action.
-                .SetAction(arguments =>
+                .SetAction((arguments, data) =>
                 {
                     var user = arguments.FromName("username");
                     var email = arguments.FromName("email");
@@ -121,7 +121,7 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .AddAlias("god", "godmode")
                 .SetDescription("Disables or enables godmode.")
                 .SetAction(
-                    delegate(Argument[] arguments)
+                    (arguments, data) =>
                     {
                         Console.WriteLine("Godmode turned {0} for {1}", arguments.FromName("status"),
                             arguments.FromName("player"));
@@ -153,7 +153,7 @@ namespace Pyratron.Frameworks.Commands.Demo
                 .AddAlias("worth")
                 .SetDescription("Item worth")
                 .SetAction(
-                    delegate(Argument[] arguments)
+                    (arguments, data) =>
                     {
                         var type = arguments.FromName("type");
                         if (type == "hand")
@@ -206,7 +206,7 @@ namespace Pyratron.Frameworks.Commands.Demo
             }
         }
 
-        private static void OnMailExecuted(Argument[] args)
+        private static void OnMailExecuted(Argument[] args, object data)
         {
             var type = args.FromName("type");
             switch (type)
@@ -229,7 +229,7 @@ namespace Pyratron.Frameworks.Commands.Demo
             }
         }
 
-        private static void OnGiveExecuted(Argument[] args)
+        private static void OnGiveExecuted(Argument[] args, object data)
         {
             var user = args.FromName("user");
             var item = args.FromName("item");
@@ -237,14 +237,14 @@ namespace Pyratron.Frameworks.Commands.Demo
             Console.WriteLine("User {0} was given {1} of {2}", user, amount, item);
         }
 
-        private static void OnUnbanExecuted(Argument[] args)
+        private static void OnUnbanExecuted(Argument[] args, object data)
         {
             var user = args.FromName("user");
             Console.WriteLine("User {0} was unbanned!", user);
             banned = false;
         }
 
-        private static void OnBanExecuted(Argument[] args)
+        private static void OnBanExecuted(Argument[] args, object data)
         {
             var user = args.FromName("user");
             Console.WriteLine("User {0} was banned!", user);
