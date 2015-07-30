@@ -17,7 +17,7 @@ public class Program {
     private static CommandParser parser;
 
     public static void main(String[] progArgs) {
-        System.out.println("Welcome to the Pyratron Command Parser Framework Demo\nProgram.cs in the Demo project. contains a short tutorial and many examples.\nType 'list' for commands.\n");
+        System.out.println("Welcome to the Pyratron Command Parser Framework Demo\nProgram.java in the Demo module contains a short tutorial and many examples.\nType 'list' for commands.\n");
         System.out.println("Additional Information: https://www.pyratron.com/projects/command-parser");
 
         /* --------
@@ -25,7 +25,7 @@ public class Program {
 		 * -------- */
 
         //Create a command parser instance.
-        //Each instance can be built upon right away by using .a(..)
+        //Each instance can be built upon right away by using .addCommand(..)
         parser = CommandParser.createNew().usePrefix("").onError(message -> onParseError(message));
 
         //Add a command via the fluent interface:
@@ -34,7 +34,7 @@ public class Program {
                 .addAlias("ban") //Aliases
                 .addAlias("banuser")
                 .setDescription("Bans a user from the server.") //Description.
-                .setAction(args -> onBanExecuted(args)) //Action to be executed when command is ran with correct parameters. (Of course, can be method, lambda, delegate, etc)
+                .setAction((args, data) -> onBanExecuted(args)) //Action to be executed when command is ran with correct parameters. (Of course, can be method, lambda, delegate, etc)
                 .setExecutePredicate(canExecute -> //Precondition to be checked before executing the command.
                 {
                     //In reality this logic would be more complex but this is just an example.
@@ -52,7 +52,7 @@ public class Program {
                 .create("Give Item")
                 .addAlias("item", "giveitem", "give")  //Note multiple aliases.
                 .setDescription("Gives a user an item.")
-                .setAction(args -> onGiveExecuted(args))
+                .setAction((args, data) -> onGiveExecuted(args))
                 .addArgument(Argument.create("user"))
                 .addArgument(Argument.create("item"))
                 .addArgument(Argument.create("amount")
@@ -63,7 +63,7 @@ public class Program {
                 .create("Register")
                 .addAlias("register")
                 .setDescription("Create an account")
-                .setAction(args -> //Note inline action.
+                .setAction((args, data) -> //Note inline action.
                 {
                     String user = Argument.fromName(args, "username");
                     String email = Argument.fromName(args, "email");
@@ -80,7 +80,7 @@ public class Program {
                 .create("Mail")
                 .addAlias("mail")
                 .setDescription("Allows users to send messages.")
-                .setAction(args -> onMailExecuted(args))
+                .setAction((args, data) -> onMailExecuted(args))
                 .addArgument(Argument.create("type") //Note a deep nesting of arguments.
                         .makeOptional() //Note command options. These turn the "type" argument into an enum style list of values.
                         .addOption(Argument //The user has to type read, clear, or send (Which has it's own nested arguments).
@@ -98,7 +98,7 @@ public class Program {
                 .create("Godmode")
                 .addAlias("god", "godmode")
                 .setDescription("Disables or enables godmode.")
-                .setAction(args ->
+                .setAction((args, data) ->
                         System.out.printf("Godmode turned %1$s for %2$s" + "\r\n", Argument
                                 .fromName(args, "status"), Argument
                                 .fromName(args, "player")))
@@ -118,11 +118,11 @@ public class Program {
                 .create("Command List")
                 .addAlias("list", "commands")
                 .setDescription("Lists commands")
-                .setAction(args ->
+                .setAction((args, data) ->
                         parser.getCommands().stream().forEachOrdered(command -> System.out.println(command.showHelp())))); //Listing of commands
 
         //Another advanced command
-        parser.addCommand(Command.create("Worth").addAlias("worth").setDescription("Item worth").setAction(args ->
+        parser.addCommand(Command.create("Worth").addAlias("worth").setDescription("Item worth").setAction((args, data) ->
         {
             String type = Argument.fromName(args, "type");
             if (type.equals("hand"))

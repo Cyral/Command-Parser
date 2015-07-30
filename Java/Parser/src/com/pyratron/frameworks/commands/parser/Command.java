@@ -1,13 +1,14 @@
 package com.pyratron.frameworks.commands.parser;
 
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Command implements IArguable {
 
     private int accessLevel;
-    private Consumer<ArrayList<Argument>> action;
+    private BiConsumer<ArrayList<Argument>, Object> action;
     private ArrayList<String> aliases;
     private Function<Command, String> canExecute;
     private String description;
@@ -196,22 +197,39 @@ public class Command implements IArguable {
     /**
      * Sets an action to be ran when the command is executed.
      *
-     * @param action Action to be ran, which takes a <pre>Argument</pre> array parameter representing the passed input.
+     * @param action Action to be ran, which takes a <pre>Argument</pre> array parameter representing the passed input, as well as any kind of optional data to be sent to the command.
      */
-    public Command setAction(Consumer<ArrayList<Argument>> action) {
+    public Command setAction(BiConsumer<ArrayList<Argument>, Object> action) {
         if (action == null) throw new IllegalArgumentException("action");
 
         this.action = action;
         return this;
     }
 
+    /**
+     * Executes this command with the specified arguments.
+     * If CanExecute returns false, the command is not run.
+     * @param arguments The parsed input.
+     * @return
+     */
     public Command execute(ArrayList<Argument> arguments) {
+        return execute(arguments, null);
+    }
+
+    /**
+     * Executes this command with the specified arguments and data to be passed.
+     * If CanExecute returns false, the command is not run.
+     * @param arguments The parsed input.
+     * @param data Optional data to be passed to the command.
+     * @return
+     */
+    public Command execute(ArrayList<Argument> arguments, Object data) {
         if (action == null)
             throw new IllegalArgumentException("The command's action must be defined before calling it.");
 
         //Run the pre-condition, if it passes (returns no error), run the action
         if (canExecute.apply(this).equals(""))
-            action.accept(arguments);
+            action.accept(arguments, data);
         return this;
     }
 

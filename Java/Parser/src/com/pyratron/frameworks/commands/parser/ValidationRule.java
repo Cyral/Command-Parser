@@ -32,7 +32,7 @@ public class ValidationRule {
      */
     public final static ValidationRule AlwaysTrue;
 
-    private static final String AlphaNumericRegex = "^[a-zA-Z][a-zA-Z0-9]*$", EmailRegex = "^[A-Z0-9._%+-]+@[A-Z]{1}[A-Z0-9.-]+\\.[A-Z]{2,26}$";
+    private static final String AlphaNumericRegex = "^[a-zA-Z][a-zA-Z0-9]*$", EmailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z]{1}[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,26}$";
 
     /**
      * A user friendly name that will be displayed in an error.

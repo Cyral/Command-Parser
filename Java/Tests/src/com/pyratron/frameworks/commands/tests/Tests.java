@@ -18,7 +18,7 @@ public class Tests {
     public final void testCommand() {
         ran = false;
         CommandParser parser = CommandParser.createNew().usePrefix("");
-        parser.addCommand(Command.create("Test").addAlias("test").setAction(args -> ran = true));
+        parser.addCommand(Command.create("Test").addAlias("test").setAction((args, data) -> ran = true));
 
         parser.getCommands().get(0).execute(null);
 
@@ -33,7 +33,7 @@ public class Tests {
         ran = false;
         error = false;
         CommandParser parser = CommandParser.createNew().usePrefix("").onError(s -> error = true);
-        parser.addCommand(Command.create("Test").addAlias("test").setAction((args) -> ran = true));
+        parser.addCommand(Command.create("Test").addAlias("test").setAction((args, data) -> ran = true));
 
         parser.parse("test2");
 
@@ -48,7 +48,7 @@ public class Tests {
     public final void testParser() {
         ran = false;
         CommandParser parser = CommandParser.createNew().usePrefix("");
-        parser.addCommand(Command.create("Test").addAlias("test").setAction((args) -> ran = true));
+        parser.addCommand(Command.create("Test").addAlias("test").setAction((args, data) -> ran = true));
 
         parser.parse("test");
 
@@ -63,7 +63,7 @@ public class Tests {
         final String input = "testarg";
         result = "";
         CommandParser parser = CommandParser.createNew().usePrefix("");
-        parser.addCommand(Command.create("Test").addAlias("test").addArgument(Argument.create("arg")).setAction(args -> result = Argument.fromName(args, "arg")));
+        parser.addCommand(Command.create("Test").addAlias("test").addArgument(Argument.create("arg")).setAction((args, data) -> result = Argument.fromName(args, "arg")));
 
         parser.parse("test " + input);
 
@@ -77,7 +77,7 @@ public class Tests {
     public final void testDefaultArguments() {
         value = -1;
         CommandParser parser = CommandParser.createNew().usePrefix("");
-        parser.addCommand(Command.create("Test").addAlias("test").addArgument(Argument.create("arg").makeOptional().setDefault(10)).setAction(args ->
+        parser.addCommand(Command.create("Test").addAlias("test").addArgument(Argument.create("arg").makeOptional().setDefault(10)).setAction((args, data) ->
                 value = Integer.parseInt(Argument.fromName(args, "arg"))));
 
         //Test specified value
@@ -99,7 +99,7 @@ public class Tests {
         CommandParser parser = CommandParser.createNew().usePrefix("");
         parser.addCommand(Command.create("Test").addAlias("test")
                 .addArgument(Argument.create("arg"))
-                .addArgument(Argument.create("arg2").makeOptional()).setAction(args -> ran = true));
+                .addArgument(Argument.create("arg2").makeOptional()).setAction((args, data) -> ran = true));
 
         parser.parse("test 123");
 
@@ -116,7 +116,7 @@ public class Tests {
         CommandParser parser = CommandParser.createNew().usePrefix("").onError(s -> error = true);
         parser.addCommand(Command.create("Test").addAlias("test")
                 .addArgument(Argument.create("arg"))
-                .addArgument(Argument.create("arg2")).setAction(args -> ran = true));
+                .addArgument(Argument.create("arg2")).setAction((args, data) -> ran = true));
 
         parser.parse("test 123");
 
@@ -133,7 +133,7 @@ public class Tests {
         error = false;
 
         CommandParser parser = CommandParser.createNew().usePrefix("").onError(s -> error = true);
-        parser.addCommand(Command.create("Test").addAlias("test").setAction(args -> ran = true)
+        parser.addCommand(Command.create("Test").addAlias("test").setAction((args, data) -> ran = true)
                 .addArgument(Argument.create("arg1").makeOptional().addArgument(Argument.create("arg2"))));
 
         //Test with no arguments, since arg1 is optional
@@ -160,7 +160,7 @@ public class Tests {
 
         CommandParser parser = CommandParser.createNew().usePrefix("").onError(s -> error = true);
 
-        parser.addCommand(Command.create("Mail").addAlias("mail").setDescription("Allows users to send messages.").setAction(args -> ran = true)
+        parser.addCommand(Command.create("Mail").addAlias("mail").setDescription("Allows users to send messages.").setAction((args, data) -> ran = true)
                 .addArgument(Argument.create("type").makeOptional()
                         .addOption(Argument.create("read"))
                         .addOption(Argument.create("clear"))
@@ -196,7 +196,7 @@ public class Tests {
     public final void TestOptionalEnumArguments() {
         CommandParser parser = CommandParser.createNew().usePrefix("");
 
-        parser.addCommand(Command.create("Test").addAlias("test").setAction(args ->
+        parser.addCommand(Command.create("Test").addAlias("test").setAction((args, data) ->
         {
             arg1 = Argument.fromName(args, "arg1");
             arg2 = Argument.fromName(args, "arg2");
@@ -234,7 +234,7 @@ public class Tests {
         ran = false;
         CommandParser parser = CommandParser.createNew().usePrefix("");
 
-        parser.addCommand(Command.create("Test").addAlias("test").setAction(obj -> ran = true).setExecutePredicate(command -> canExecute ? "" : "Error"));
+        parser.addCommand(Command.create("Test").addAlias("test").setAction((args, data) -> ran = true).setExecutePredicate(command -> canExecute ? "" : "Error"));
 
         //CanExecute true
         parser.parse("test");
