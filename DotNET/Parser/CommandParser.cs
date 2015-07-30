@@ -151,9 +151,9 @@ namespace Pyratron.Frameworks.Commands.Parser
             if (!string.IsNullOrEmpty(Prefix))
             {
                 var index = input.IndexOf(Prefix, StringComparison.OrdinalIgnoreCase);
-                if (index == -1)
+                if (index != 0)
                     return false;
-                input = input.Remove(index, Prefix.Length);
+                input = input.Remove(0, Prefix.Length);
             }
             if (string.IsNullOrEmpty(input))
                 return false;

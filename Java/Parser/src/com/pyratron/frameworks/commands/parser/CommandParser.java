@@ -119,9 +119,9 @@ public class CommandParser {
         input = input.trim();
         if (!prefix.equals("")) {
             int index = input.toLowerCase().indexOf(prefix.toLowerCase());
-            if (index == -1)
+            if (index != 0)
                 return false;
-            input = input.substring(index, prefix.length());
+            input = input.substring(prefix.length());
         }
         if (input.equals(""))
             return false;

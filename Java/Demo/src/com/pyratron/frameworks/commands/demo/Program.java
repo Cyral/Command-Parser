@@ -17,7 +17,7 @@ public class Program {
     private static CommandParser parser;
 
     public static void main(String[] progArgs) {
-        System.out.println("Welcome to the Pyratron Command Parser Framework Demo\nProgram.cs in the Demo project. contains a short tutorial and many examples.\nType 'list' for commands.\n");
+        System.out.println("Welcome to the Pyratron Command Parser Framework Demo\nProgram.java in the Demo module contains a short tutorial and many examples.\nType 'list' for commands.\n");
         System.out.println("Additional Information: https://www.pyratron.com/projects/command-parser");
 
         /* --------
@@ -25,7 +25,7 @@ public class Program {
 		 * -------- */
 
         //Create a command parser instance.
-        //Each instance can be built upon right away by using .a(..)
+        //Each instance can be built upon right away by using .addCommand(..)
         parser = CommandParser.createNew().usePrefix("").onError(message -> onParseError(message));
 
         //Add a command via the fluent interface:
