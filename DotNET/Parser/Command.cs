@@ -240,11 +240,11 @@ namespace Pyratron.Frameworks.Commands.Parser
         }
 
         /// <summary>
-        /// Executes a command with the specified input and an optional access level.
+        /// Executes this command with the specified arguments.
         /// If CanExecute returns false, the command is not run.
         /// </summary>
         /// <param name="arguments">The parsed input</param>
-        /// <param name="data">Optional ata to be passed to the command.</param>
+        /// <param name="data">Optional data to be passed to the command.</param>
         public Command Execute(Argument[] arguments, object data = null)
         {
             if (Action == null)

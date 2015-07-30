@@ -106,12 +106,45 @@ public class CommandParser {
      * command.
      * Use <pre>Arguments[].FromName(...)</pre> to get the values of the parsed arguments in the command action.
      *
+     * @param input A string inputted by a user. If the string does not start with the parser prefix, it will return false, otherwise it will parse the command.
+     * @param data Data to pass to the command. This data can be used by the command when it is executed.
+     * @return True if the input is non-empty and starts with the <pre>Prefix</pre>.
+     * If the input does not start with a prefix, it returns false so the message can be processed further. (As a chat message, for example)
+     */
+    public final boolean parse(String input, Object data) {
+        return parse(input, data, 0);
+    }
+
+    /**
+     * Parses text in search of a command (with prefix), and runs it accordingly.
+     * <p>
+     * Data does not need to be formatted in any way before parsing. Simply pass your input to the function and
+     * it will determine if it is a valid command, check the command's <pre>Command.CanExecute</pre> function, and run the
+     * command.
+     * Use <pre>Arguments[].FromName(...)</pre> to get the values of the parsed arguments in the command action.
+     *
+     * @param input A string inputted by a user. If the string does not start with the parser prefix, it will return false, otherwise it will parse the command.
+     * @return True if the input is non-empty and starts with the <pre>Prefix</pre>.
+     * If the input does not start with a prefix, it returns false so the message can be processed further. (As a chat message, for example)
+     */
+    public final boolean parse(String input, int accessLevel) {
+        return parse(input, null, accessLevel);
+    }
+
+    /**
+     * Parses text in search of a command (with prefix), and runs it accordingly.
+     * <p>
+     * Data does not need to be formatted in any way before parsing. Simply pass your input to the function and
+     * it will determine if it is a valid command, check the command's <pre>Command.CanExecute</pre> function, and run the
+     * command.
+     * Use <pre>Arguments[].FromName(...)</pre> to get the values of the parsed arguments in the command action.
+     *
      * @param input       A string inputted by a user. If the string does not start with the parser prefix, it will return false, otherwise it will parse the command.
      * @param accessLevel An optional level to limit executing commands if the user doesn't have permission.
      * @return True if the input is non-empty and starts with the <pre>Prefix</pre>.
      * If the input does not start with a prefix, it returns false so the message can be processed further. (As a chat message, for example)
      */
-    public final boolean parse(String input, int accessLevel) {
+    public final boolean parse(String input, Object data, int accessLevel) {
         if (input.equals(""))
             return false;
 
@@ -165,7 +198,7 @@ public class CommandParser {
             String alias = inputArgs.get(0).toLowerCase(); //Preserve the alias typed in.
             inputArgs.remove(0); //Remove the command name.
             if (!parseArguments(false, alias, command, command, inputArgs, returnArgs))
-                command.execute(returnArgs); //Execute the command.
+                command.execute(returnArgs, data); //Execute the command.
 
             //Return argument values back to default.
             resetArgs(command);
