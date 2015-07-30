@@ -12,7 +12,7 @@ The library is available for **.NET** (C#, VB, and C++/CLI) and **Java**, and wi
 
 The .dll or .jar can be downloaded [here](https://github.com/Pyratron/Command-Parser/releases/latest), and then referenced by your project.
 
-The .NET library can also be installed in Visual Studio using the [NuGet package](https://www.nuget.org/packages/Pyratron.Frameworks.Commands.Parser/1.3.0).
+The .NET library can also be installed through NuGet by using the [NuGet package](https://www.nuget.org/packages/Pyratron.Frameworks.Commands.Parser/1.3.0).
 
     PM> Install-Package Pyratron.Frameworks.Commands.Parser 
 
