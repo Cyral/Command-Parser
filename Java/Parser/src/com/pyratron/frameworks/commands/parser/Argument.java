@@ -248,7 +248,7 @@ public class Argument implements IArguable {
             {
                 for (int j = 0; j < arg.getArguments().size(); j++) {
                     Argument possibility = arg.getArguments().get(j);
-                    sb.append(possibility.getName());
+                    sb.append(possibility.getName().toLowerCase().replace("_", " "));
                     if (arg.getArguments().get(j).getArguments().size() >= 1) //Child arguments (Print each possible value).
                     {
                         sb.append(' ');
@@ -258,7 +258,7 @@ public class Argument implements IArguable {
                         sb.append('|');
                 }
             } else {
-                sb.append(arg.getName().toLowerCase());
+                sb.append(arg.getName().toLowerCase().replace("_", " "));
                 if (arg.getArguments().size() >= 1) //Child arguments.
                 {
                     sb.append(' ');
