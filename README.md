@@ -1,4 +1,4 @@
-#  <center>[Command Parser](http://www.pyratron.com)</center>
+#  <center>[Command Parser](https://www.pyratron.com/command-parser)</center>
 #### <center>Pyratron Command Parser Framework</center>
 <center>[![Build Status](https://travis-ci.org/Pyratron/Command-Parser.svg?branch=master)](https://travis-ci.org/Pyratron/Command-Parser)</center>
 
@@ -17,10 +17,10 @@ The .NET library can also be installed through NuGet by using the [NuGet package
     PM> Install-Package Pyratron.Frameworks.Commands.Parser 
 
 ##Documentation & Tutorials
-Documentation and tutorials are available on the [Pyratron website](https://www.pyratron.com/projects/command-parser).
+Documentation and tutorials are available on the [Pyratron website](https://www.pyratron.com/command-parser).
 
- - [C# Tutorial](https://www.pyratron.com/projects/command-parser/dotnet)
- - [Java Tutorial](https://www.pyratron.com/projects/command-parser/java)
+ - [C# Tutorial](https://www.pyratron.com/docs/command-parser/18-net-tutorial)
+ - [Java Tutorial](https://www.pyratron.com/docs/command-parser/19-java-tutorial)
 
 ###Example Application:
-![Example](https://www.pyratron.com/images/pages/command-parser/command-parser.png)
+![Example](https://www.pyratron.com/images/pages/command-parser/demo.png)
